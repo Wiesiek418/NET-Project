@@ -3,19 +3,20 @@
         <template v-slot:main_content>
         <h1>Home View</h1>
         <p>Welcome to the home page!</p>
+        <button @click="handleClick">Click Me</button>
+            <tableComponent
+                v-if="data"
+                :headers="headers"
+                :data="data">
+            </tableComponent>
+            <ChartView
+                v-if="chartData.labels && chartData.labels.length"
+                type="bar"
+                :data="chartData"
+            />
         </template>
     </TheContainer>
-    <button @click="handleClick">Click Me</button>
-    <tableComponent
-        v-if="data"
-        :headers="headers"
-        :data="data">
-    </tableComponent>
-    <ChartView
-        v-if="chartData.labels && chartData.labels.length"
-        type="bar"
-        :data="chartData"
-    />
+    
 </template>
 
 <script>
