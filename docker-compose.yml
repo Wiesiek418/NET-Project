@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   api:
     build:
@@ -13,6 +11,20 @@ services:
       - /api/obj
     environment:
       - ASPNETCORE_ENVIRONMENT=dev
+      # Database config
+      - Database__ConnectionString=mongodb://root:example@mongo:27017
+      - Database__DatabaseName=sensordb
+      - Database__AlphaCollection=alpha_readings
+      # MQTT config
+      - Mqtt__BrokerHost=mqtt
+      - Mqtt__BrokerPort=1883
+      - Mqtt__ClientId=mqtt-listener
+      - Mqtt__Username=
+      - Mqtt__Password=
+      - Mqtt__TopicAlpha=sensors/alpha
+    depends_on:
+      - mongo
+      - mqtt
     command: dotnet watch run --urls=http://+:5000 --no-launch-profile
     
   web:
@@ -27,3 +39,28 @@ services:
     environment:
       - NODE_ENV=dev
     command: npm run dev -- --host
+
+  mqtt:
+    image: eclipse-mosquitto
+    container_name: mqtt
+    ports:
+      - "1883:1883" #default mqtt port
+      - "9001:9001" #default mqtt port for websockets
+    volumes:
+      - ./mqtt/config:/mosquitto/config:rw
+      - ./mqtt/data:/mosquitto/data:rw
+      - ./mqtt/log:/mosquitto/log:rw
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:8.0-noble
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: sensordb
+    volumes:
+      - ./data:/data/db
