@@ -1,13 +1,5 @@
 # NET-Project
 
-## API
-
-### Alpha
-Test data flow for a sensor named Alpha:
-- subscribes to topic "sensors/alpha"
-- handles AlphaReading entities - { Value: int }
-- exposes endpoint for GETing all AlphaReadings from db - at "http://localhost:5000/api2/alpha"
-
 ## Development
 
 ### Backend
@@ -16,9 +8,19 @@ You already have Docker, right ?
 
 ## Testing
 
-### Publish to MQTT broker with Docker only
+### Publish to MQTT broker with only Docker
+
+Interactively 
 ```bash
-docker run --network=net-project_default -it --rm efrecon/mqtt-client pub -h mqtt -p 1883 -t "sensors/alpha" -m '{"Value": 501}'
+docker run --network=net-project_default -it --rm efrecon/mqtt-client sh
+
+# inside the container
+mosquitto_pub -h mqtt -p 1883 -t "sensors/conveyor" -m '{"SensorId": 123,"Timestamp": "1337-04-01T00:00:00","Status": "active","BearingTemp": 23.5,"Speed": 12.7}'
+# ...
+exit
 ```
-This creates a new container, adds it to the default compose network and publishes the message to topic "sensors/alpha".  
-Useful for testing the backend without setting up a real publisher.
+
+Script that sends 1 message per sensor
+```bash
+docker run --rm -v ${PWD}/scripts/mqtttest.sh:/script.sh --network=net-project_default efrecon/mqtt-client sh /script.sh
+```

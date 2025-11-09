@@ -1,8 +1,7 @@
-using Data;
 using Data.Models;
 using Data.Repository;
 
 namespace Data.Services.Interfaces;
 
-public interface IAlphaService : IReadingService<AlphaReading>
-{}
+public interface IBakingService : IReadingService<BakingFurnaceReading>
+{ }

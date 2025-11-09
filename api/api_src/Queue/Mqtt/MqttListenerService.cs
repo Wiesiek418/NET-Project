@@ -57,9 +57,18 @@ public class MqttListenerService : BackgroundService
 
         await _mqttClient.ConnectAsync(options, stoppingToken);
 
-        var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
-            .WithTopicFilter(_settings.TopicAlpha)
-            .Build();
+        var subscribeBuilder = mqttFactory.CreateSubscribeOptionsBuilder();
+        // add topic filters only when configured
+        if (!string.IsNullOrWhiteSpace(_settings.TopicConveyor))
+            subscribeBuilder = subscribeBuilder.WithTopicFilter(_settings.TopicConveyor);
+        if (!string.IsNullOrWhiteSpace(_settings.TopicBaking))
+            subscribeBuilder = subscribeBuilder.WithTopicFilter(_settings.TopicBaking);
+        if (!string.IsNullOrWhiteSpace(_settings.TopicDough))
+            subscribeBuilder = subscribeBuilder.WithTopicFilter(_settings.TopicDough);
+        if (!string.IsNullOrWhiteSpace(_settings.TopicPacking))
+            subscribeBuilder = subscribeBuilder.WithTopicFilter(_settings.TopicPacking);
+
+        var mqttSubscribeOptions = subscribeBuilder.Build();
         await _mqttClient.SubscribeAsync(mqttSubscribeOptions, stoppingToken);
     }
 

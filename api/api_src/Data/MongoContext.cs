@@ -19,6 +19,15 @@ public class MongoDbContext
 
     public IMongoDatabase Database => _database;
 
-    public IMongoCollection<AlphaReading> AlphaReadings =>
-        _database.GetCollection<AlphaReading>(_settings.AlphaCollection);
+    public IMongoCollection<ConveyorBeltReading> ConveyorReadings =>
+        _database.GetCollection<ConveyorBeltReading>(_settings.ConveyorCollection);
+
+    public IMongoCollection<BakingFurnaceReading> BakingReadings =>
+        _database.GetCollection<BakingFurnaceReading>(_settings.BakingCollection);
+
+    public IMongoCollection<DoughMixerReading> DoughReadings =>
+        _database.GetCollection<DoughMixerReading>(_settings.DoughCollection);
+
+    public IMongoCollection<PackingLineReading> PackingReadings =>
+        _database.GetCollection<PackingLineReading>(_settings.PackingCollection);
 }

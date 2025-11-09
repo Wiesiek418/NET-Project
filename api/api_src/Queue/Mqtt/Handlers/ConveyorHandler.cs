@@ -11,29 +11,29 @@ using System.Text;
 
 namespace Queue.Mqtt.Handlers;
 
-public class AlphaHandler : IMqttMessageHandler
+public class ConveyorHandler : IMqttMessageHandler
 {
-    private readonly ILogger<AlphaHandler> _logger;
-    private readonly IAlphaService _service;
+    private readonly ILogger<ConveyorHandler> _logger;
+    private readonly IConveyorService _service;
 
     public string TopicFilter { get; }
 
-    public AlphaHandler(
-        ILogger<AlphaHandler> logger,
-        IAlphaService service,
+    public ConveyorHandler(
+        ILogger<ConveyorHandler> logger,
+        IConveyorService service,
         IOptions<MqttSettings> options
         )
     {
         _logger = logger;
         _service = service;
-        TopicFilter = options.Value.TopicAlpha;
+        TopicFilter = options.Value.TopicConveyor;
     }
 
     public Task HandleMessageAsync(string payload, CancellationToken ct)
     {
         _logger.LogDebug($"Handling message from {TopicFilter}");
 
-        var reading = JsonSerializer.Deserialize<AlphaReading>(payload) ?? throw new ArgumentNullException("Message deserialized to null");
+        var reading = JsonSerializer.Deserialize<ConveyorBeltReading>(payload) ?? throw new ArgumentNullException("Message deserialized to null");
         return _service.CreateAsync(reading);
     }
 }
