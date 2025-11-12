@@ -7,5 +7,8 @@ public class MqttSettings
     public string ClientId { get; set; } = string.Empty;
     public string Username { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
-    public string TopicAlpha { get; set; } = string.Empty;
+    public string TopicConveyor { get; set; } = string.Empty;
+    public string TopicBaking { get; set; } = string.Empty;
+    public string TopicDough { get; set; } = string.Empty;
+    public string TopicPacking { get; set; } = string.Empty;
 }

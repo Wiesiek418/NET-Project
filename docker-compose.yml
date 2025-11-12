@@ -14,14 +14,20 @@ services:
       # Database config
       - Database__ConnectionString=mongodb://root:example@mongo:27017
       - Database__DatabaseName=sensordb
-      - Database__AlphaCollection=alpha_readings
+      - Database__ConveyorCollection=conveyor_readings
+      - Database__BakingCollection=baking_readings
+      - Database__DoughCollection=dough_readings
+      - Database__PackingCollection=packing_readings
       # MQTT config
       - Mqtt__BrokerHost=mqtt
       - Mqtt__BrokerPort=1883
       - Mqtt__ClientId=mqtt-listener
       - Mqtt__Username=
       - Mqtt__Password=
-      - Mqtt__TopicAlpha=sensors/alpha
+      - Mqtt__TopicConveyor=sensors/conveyor
+      - Mqtt__TopicBaking=sensors/baking
+      - Mqtt__TopicDough=sensors/dough
+      - Mqtt__TopicPacking=sensors/packing
     depends_on:
       - mongo
       - mqtt
@@ -63,4 +69,4 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
       MONGO_INITDB_DATABASE: sensordb
     volumes:
-      - ./data:/data/db
+      - ./mongo/data:/data/db
