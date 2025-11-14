@@ -19,11 +19,11 @@ public class MongoRepository<T> : IRepository<T> where T : BaseReading
         var filterDef = BuildFilterDefinition(filter);
         var sortDef = BuildSortDefinition(sort);
 
-        var findFluent = _collection.Find(filterDef);
+        var query = _collection.Find(filterDef);
 
-        if (sortDef != null) findFluent = findFluent.Sort(sortDef);
+        if (sortDef != null) query = query.Sort(sortDef);
 
-        return await findFluent.ToListAsync();
+        return await query.ToListAsync();
     }
 
     public async Task<T?> GetByIdAsync(string id)
