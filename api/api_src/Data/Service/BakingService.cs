@@ -13,9 +13,9 @@ public class BakingService : IBakingService
         _repo = repo;
     }
 
-    public Task<IEnumerable<BakingFurnaceReading>> GetAllAsync()
+    public Task<IEnumerable<BakingFurnaceReading>> GetAllAsync(string? filter, string? sort)
     {
-        return _repo.GetAllAsync();
+        return _repo.GetAllAsync(filter, sort);
     }
 
     public Task CreateAsync(BakingFurnaceReading reading)

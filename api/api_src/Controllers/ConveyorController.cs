@@ -15,8 +15,10 @@ public class ConveyorController : ControllerBase
         _service = service;
 
     [HttpGet]
-    public async Task<IEnumerable<ConveyorBeltReading>> Get() =>
-        await _service.GetAllAsync();
+    public async Task<IEnumerable<ConveyorBeltReading>> Get(
+        [FromQuery] string? filter, 
+        [FromQuery] string? sort) =>
+        await _service.GetAllAsync(filter, sort);
 
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] ConveyorBeltReading reading)

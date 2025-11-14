@@ -15,8 +15,10 @@ public class DoughController : ControllerBase
         _service = service;
 
     [HttpGet]
-    public async Task<IEnumerable<DoughMixerReading>> Get() =>
-        await _service.GetAllAsync();
+    public async Task<IEnumerable<DoughMixerReading>> Get(
+        [FromQuery] string? filter, 
+        [FromQuery] string? sort) =>
+        await _service.GetAllAsync(filter, sort);
 
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] DoughMixerReading reading)
