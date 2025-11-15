@@ -7,6 +7,11 @@ builder.Services.AddControllers()
     .AddJsonOptions(
         options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 
+builder.Services.AddControllers(options =>
+{
+    options.OutputFormatters.Add(new CsvHelperOutputFormatter());
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("VueApp", policy =>
