@@ -14,11 +14,11 @@ public static class WebApplicationBuilderExtensions
         builder.Services.Configure<MqttSettings>(
             builder.Configuration.GetSection("Mqtt"));
 
-    // Add handlers
-    builder.Services.AddSingleton<IMqttMessageHandler, ConveyorHandler>();
-    builder.Services.AddSingleton<IMqttMessageHandler, BakingHandler>();
-    builder.Services.AddSingleton<IMqttMessageHandler, DoughHandler>();
-    builder.Services.AddSingleton<IMqttMessageHandler, PackingHandler>();
+        // Add handlers
+        builder.Services.AddSingleton<IMqttMessageHandler, ConveyorHandler>();
+        builder.Services.AddSingleton<IMqttMessageHandler, BakingHandler>();
+        builder.Services.AddSingleton<IMqttMessageHandler, DoughHandler>();
+        builder.Services.AddSingleton<IMqttMessageHandler, PackingHandler>();
 
         // Add router and worker
         builder.Services.AddSingleton<MqttMessageRouter>();
@@ -34,18 +34,17 @@ public static class WebApplicationBuilderExtensions
 
         builder.Services.AddSingleton<MongoDbContext>();
 
-    builder.Services.AddSingleton<IConveyorRepository, ConveyorRepository>();
-    builder.Services.AddSingleton<IConveyorService, ConveyorService>();
+        // Repositories
+        builder.Services.AddSingleton<IConveyorRepository, ConveyorRepository>();
+        builder.Services.AddSingleton<IBakingRepository, BakingRepository>();
+        builder.Services.AddSingleton<IDoughRepository, DoughRepository>();
+        builder.Services.AddSingleton<IPackingRepository, PackingRepository>();
 
-    // Repositories for other reading types
-    builder.Services.AddSingleton<IBakingRepository, BakingRepository>();
-    builder.Services.AddSingleton<IDoughRepository, DoughRepository>();
-    builder.Services.AddSingleton<IPackingRepository, PackingRepository>();
-
-    // Services for other reading types
-    builder.Services.AddSingleton<IBakingService, BakingService>();
-    builder.Services.AddSingleton<IDoughService, DoughService>();
-    builder.Services.AddSingleton<IPackingService, PackingService>();
+        // Services
+        builder.Services.AddSingleton<IConveyorService, ConveyorService>();
+        builder.Services.AddSingleton<IBakingService, BakingService>();
+        builder.Services.AddSingleton<IDoughService, DoughService>();
+        builder.Services.AddSingleton<IPackingService, PackingService>();
 
         return builder;
     }
