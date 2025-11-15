@@ -13,9 +13,9 @@ public class DoughService : IDoughService
         _repo = repo;
     }
 
-    public Task<IEnumerable<DoughMixerReading>> GetAllAsync()
+    public Task<IEnumerable<DoughMixerReading>> GetAllAsync(string? filter, string? sort)
     {
-        return _repo.GetAllAsync();
+        return _repo.GetAllAsync(filter, sort);
     }
 
     public Task CreateAsync(DoughMixerReading reading)

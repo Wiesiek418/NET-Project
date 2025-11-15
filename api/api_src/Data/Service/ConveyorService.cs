@@ -13,9 +13,9 @@ public class ConveyorService : IConveyorService
         _repo = repo;
     }
 
-    public Task<IEnumerable<ConveyorBeltReading>> GetAllAsync()
+    public Task<IEnumerable<ConveyorBeltReading>> GetAllAsync(string? filter, string? sort)
     {
-        return _repo.GetAllAsync();
+        return _repo.GetAllAsync(filter, sort);
     }
 
     public Task CreateAsync(ConveyorBeltReading reading)

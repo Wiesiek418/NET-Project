@@ -13,9 +13,9 @@ public class PackingService : IPackingService
         _repo = repo;
     }
 
-    public Task<IEnumerable<PackingLineReading>> GetAllAsync()
+    public Task<IEnumerable<PackingLineReading>> GetAllAsync(string? filter, string? sort)
     {
-        return _repo.GetAllAsync();
+        return _repo.GetAllAsync(filter, sort);
     }
 
     public Task CreateAsync(PackingLineReading reading)
