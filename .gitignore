@@ -27,3 +27,6 @@ dist-ssr
 # Docker volumes
 mongo/data
 mqtt/data
+
+# Python cache
+__pycache__/
