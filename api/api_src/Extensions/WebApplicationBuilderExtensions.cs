@@ -14,15 +14,17 @@ public static class WebApplicationBuilderExtensions
         builder.Services.Configure<MqttSettings>(
             builder.Configuration.GetSection("Mqtt"));
 
+        // Add internals
+        builder.Services.AddSingleton<MqttMessageRouter>();
+        builder.Services.AddHostedService<MqttListenerService>();
+        builder.Services.AddSingleton<MqttWorkQueue>();
+        builder.Services.AddHostedService<MqttProcessingService>();
+
         // Add handlers
         builder.Services.AddSingleton<IMqttMessageHandler, ConveyorHandler>();
         builder.Services.AddSingleton<IMqttMessageHandler, BakingHandler>();
         builder.Services.AddSingleton<IMqttMessageHandler, DoughHandler>();
         builder.Services.AddSingleton<IMqttMessageHandler, PackingHandler>();
-
-        // Add router and worker
-        builder.Services.AddSingleton<MqttMessageRouter>();
-        builder.Services.AddHostedService<MqttListenerService>();
 
         return builder;
     }

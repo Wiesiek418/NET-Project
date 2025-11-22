@@ -8,18 +8,18 @@ public class MqttListenerService : BackgroundService
 {
     private readonly ILogger<MqttListenerService> _logger;
     private readonly MqttSettings _settings;
-    private readonly MqttMessageRouter _router;
     private IMqttClient? _mqttClient;
+    private MqttWorkQueue _queue;
 
     public MqttListenerService(
         ILogger<MqttListenerService> logger,
         IOptions<MqttSettings> options,
-        MqttMessageRouter router
+        MqttWorkQueue queue
         )
     {
         _logger = logger;
-        _router = router;
         _settings = options.Value;
+        _queue = queue;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,18 +35,28 @@ public class MqttListenerService : BackgroundService
         var options = new MqttClientOptionsBuilder()
             .WithClientId(_settings.ClientId)
             .WithTcpServer(_settings.BrokerHost, _settings.BrokerPort)
+            .WithKeepAlivePeriod(TimeSpan.FromSeconds(60))  // or 120
             .WithCleanSession()
             .WithWillQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
             .Build();
+
+        _mqttClient.DisconnectedAsync += async e =>
+        {
+            if (e.ClientWasConnected)
+            {
+                // Use the current options as the new options.
+                await _mqttClient.ConnectAsync(options);
+            }
+        };
 
         _mqttClient.ApplicationMessageReceivedAsync += async e =>
         {
             try
             {
                 string msg = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-                await _router.RouteMessageAsync(
-                    e.ApplicationMessage.Topic,
-                    msg,
+
+                await _queue.Queue.Writer.WriteAsync(
+                    (e.ApplicationMessage.Topic, msg),
                     stoppingToken);
             } 
             catch (DecoderFallbackException ex)
