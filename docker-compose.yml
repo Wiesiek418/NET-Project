@@ -12,7 +12,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=dev
       # Database config
-      - Database__ConnectionString=mongodb://root:example@mongo:27017
+      - Database__ConnectionString=mongodb://root:example@mongodb:27017
       - Database__DatabaseName=sensordb
       - Database__ConveyorCollection=conveyor_readings
       - Database__BakingCollection=baking_readings
@@ -31,7 +31,7 @@ services:
     depends_on:
       - mongo
       - mqtt
-    command: dotnet watch run --urls=http://+:5000 --no-launch-profile
+    command: dotnet run --urls=http://+:5000 --no-launch-profile
     
   web:
     build:
@@ -70,3 +70,11 @@ services:
       MONGO_INITDB_DATABASE: sensordb
     volumes:
       - ./mongo/data:/data/db
+
+  # sensors:
+  #   build:
+  #     context: ./sensor
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     - mqtt
+  #   command: python run_all.py --broker mqtt --baking-furnaces 2 --conveyor-belts 1 --dough-mixers 1 --packing-lines 1
