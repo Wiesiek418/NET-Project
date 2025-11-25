@@ -22,6 +22,7 @@
 <script>
 export default {
     name: 'LeftSide',
+    emits: ['toggle'],
     props: {
         collapsed: {
             type: Boolean,
@@ -41,29 +42,39 @@ export default {
 
 <style scoped>
 .sidebar {
-  transition: width 0.3s;
-  background: #f5f5f5;
-  padding: 1rem;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  width: 220px;
+  transition: width 0.3s ease;
+  background: var(--theme-color-secondary);
+  color: var(--theme-color-primary);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .sidebar.collapsed {
-  width: 60px;
+  width: 80px;
 }
 
 .toggle-btn {
   background: transparent;
+  color: var(--theme-color-primary);
+  font-weight: var(--font-weight-bold);
   border: none;
   font-size: 1.2rem;
   cursor: pointer;
-  margin-bottom: 1rem;
+  margin-bottom: 1rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.menu {
+.left-aside-menu {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  flex-grow: 1;
 }
 
 .menu-item {
@@ -71,27 +82,35 @@ export default {
   align-items: center;
   text-decoration: none;
   color: #333;
-  padding: 0.5rem;
-  border-radius: 0.3rem;
-  transition: background-color 0.2s;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.25s ease;
+  font-size: 1rem;
 }
 
 .menu-item:hover {
   background-color: #e0e0e0;
 }
 
-.menu-item .icon {
-  width: 24px;
+.icon {
+  font-size: 1.8rem;
+  width: 32px;
   text-align: center;
-  margin-right: 0.5rem;
+  transition: transform 0.3s ease, margin 0.3s ease;
+}
+
+.sidebar.collapsed .menu-item {
+  justify-content: center;
 }
 
 .menu-item.active {
   background-color: #1976d2;
   color: white;
+  box-shadow: inset 3px 0 0 #0d47a1;
 }
 
-.label {
-  white-space: nowrap;
+.menu-item.active:hover {
+  background-color: #1565c0;
 }
+
 </style>

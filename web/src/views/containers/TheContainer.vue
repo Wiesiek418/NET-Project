@@ -2,11 +2,12 @@
   <div class="container">
     <HeaderComponent/>
     <div class="content-wrapper">
-      <LeftSide :collapsed="sidebarCollapsed" @toggle="toggleSidebar"/>
+      <LeftSide 
+        :collapsed="uiStore.sidebarCollapsed" 
+        @toggle="uiStore.toggleSidebar"
+      />
       <main class="main-container">
-        <div>
-          <slot name="main_content"></slot>
-        </div>
+        <slot name="main_content" />
       </main>
     </div>
     <FooterComponent/>
@@ -14,35 +15,27 @@
 </template>
 
 <script>
-import FooterComponent from '../../components/main_page/FooterComponent.vue';
-import HeaderComponent from '../../components/main_page/HeaderComponent.vue';
-import LeftSide from '../../components/main_page/LeftSide.vue';
+import FooterComponent from '../../components/main_page/FooterComponent.vue'
+import HeaderComponent from '../../components/main_page/HeaderComponent.vue'
+import LeftSide from '../../components/main_page/LeftSide.vue'
+import { useUiStore } from '@/stores/uiStore'
 
 export default {
   name: 'TheContainer',
-  components: {
-    HeaderComponent,
-    LeftSide,
-    FooterComponent
-  },
-  data() {
-    return {
-      sidebarCollapsed: true
-    };
-  },
-  methods: {
-    toggleSidebar() {
-      this.sidebarCollapsed = !this.sidebarCollapsed;
-    },
-  },
+  components: { HeaderComponent, FooterComponent, LeftSide },
+  setup() {
+    const uiStore = useUiStore()
+    return { uiStore }
+  }
 }
 </script>
 
 <style scoped>
-.page-container {
-  display: flex;
-  flex-direction: column;
+.container {
+  width: 100%;
   height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 .content-wrapper {
@@ -51,9 +44,10 @@ export default {
   height: 100vh;
 }
 
-.main-content {
+.main-container {
   flex: 1;
   padding: 1rem;
+  margin: 1rem;
   overflow-y: auto;
 }
 </style>

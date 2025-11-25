@@ -12,9 +12,9 @@ export default {
 
 <style scoped>
 .header-container {
-    background-color: #dcf54f;
+    background-color: var(--theme-color-main);
     padding: 20px;
-    color: #00b600;
+    color: var(--theme-color-primary);
     display: flex;
     align-items: start;
     justify-self: center;
