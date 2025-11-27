@@ -15,6 +15,7 @@ public class WalletService
 {
     private readonly WalletUnitOfWork _unitOfWork;
     private readonly BlockchainSettings _settings;
+    private Web3 _web3;
     private readonly string _abi = @"[
         {
             ""constant"": true,
@@ -31,6 +32,7 @@ public class WalletService
     {
         _unitOfWork = unitOfWork;
         this._settings = _settings.Value;
+        _web3 = new Web3(this._settings.RpcUrl);
     }
 
     public async Task<IEnumerable<WalletInfo>> GetAllWalletsAsync(CancellationToken ct = default)
@@ -42,8 +44,7 @@ public class WalletService
     public async Task<IEnumerable<WalletBalance>> GetBalancesAsync(bool raw = false, CancellationToken ct = default)
     {
         var wallets = await GetAllWalletsAsync(ct);
-        var web3 = new Web3(_settings.RpcUrl);
-        var contract = web3.Eth.GetContract(_abi, _settings.TokenAddress);
+        var contract = _web3.Eth.GetContract(_abi, _settings.TokenAddress);
         var balanceOf = contract.GetFunction("balanceOf");
 
         // For testing purposes, if no wallets are found, use a default one
