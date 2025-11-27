@@ -1,4 +1,6 @@
-using Core.Abstractions;
+using Extensions;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using Domains.Sensors.Infrastructure.Data;
 using Domains.Sensors.Models;
 
@@ -12,10 +14,12 @@ namespace Domains.Sensors.Application;
 public class SensorService
 {
     private readonly SensorsUnitOfWork _unitOfWork;
+    private readonly SensorsMongoContext _context;
 
-    public SensorService(SensorsUnitOfWork unitOfWork)
+    public SensorService(SensorsUnitOfWork unitOfWork, SensorsMongoContext context)
     {
         _unitOfWork = unitOfWork;
+        _context = context;
     }
 
     #region Conveyor Belt Readings
@@ -118,6 +122,48 @@ public class SensorService
         var repository = _unitOfWork.GetRepository<PackingLineReading>();
         await repository.CreateAsync(reading, ct);
         await _unitOfWork.SaveChangesAsync(ct);
+    }
+
+    #endregion
+    
+    #region Global Sensor Operations
+
+    public async Task<IEnumerable<SensorSummary>> GetAllSensorsSummaryAsync(
+        string? filter = null, 
+        string? sort = null, 
+        CancellationToken ct = default)
+    {
+        var conveyorTask = GetCollectionSummaryAsync(_context.ConveyorReadings, "Conveyor", ct);
+        var bakingTask = GetCollectionSummaryAsync(_context.BakingReadings, "Baking", ct);
+        var doughTask = GetCollectionSummaryAsync(_context.DoughReadings, "Dough", ct);
+        var packingTask = GetCollectionSummaryAsync(_context.PackingReadings, "Packing", ct);
+
+        await Task.WhenAll(conveyorTask, bakingTask, doughTask, packingTask);
+        
+        var allSensors = conveyorTask.Result
+            .Concat(bakingTask.Result)
+            .Concat(doughTask.Result)
+            .Concat(packingTask.Result);
+        
+        return allSensors.ApplyQuery(filter, sort);
+    }
+
+    // Pomocnicza metoda generyczna do grupowania (Group By) w MongoDB
+    private async Task<List<SensorSummary>> GetCollectionSummaryAsync<T>(
+        IMongoCollection<T> collection, 
+        string typeName, 
+        CancellationToken ct) where T : SensorReading
+    {
+        var query = collection.AsQueryable()
+            .GroupBy(r => r.SensorId)
+            .Select(g => new SensorSummary
+            {
+                SensorId = g.Key,
+                Type = typeName,
+                CreatedAt = g.Min(r => r.Timestamp)
+            });
+
+        return await query.ToListAsync(ct);
     }
 
     #endregion
