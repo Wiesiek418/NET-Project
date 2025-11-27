@@ -1,7 +1,7 @@
 <template>
   <TheContainer>
     <template v-slot:main_content>
-      <h1>About View</h1>
+      <h1>Blockchain View</h1>
       <p>This is the about page!</p>
     </template>
   </TheContainer>
@@ -11,7 +11,7 @@
 import TheContainer from "../containers/TheContainer.vue";
 
 export default {
-  name: 'About',
+  name: 'Blockchain',
   components: {
     TheContainer
   }

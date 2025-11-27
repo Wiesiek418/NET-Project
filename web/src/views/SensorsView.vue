@@ -1,5 +1,16 @@
 <template>
     <div class="sensors-container">
+        <button
+            @click="downloadData('json')"
+        >
+            Download Data JSON
+        </button>
+        <button
+            @click="downloadData('csv')"
+        >
+            Download Data CSV
+        </button>
+
         <FilterSortPanel
             :headers="headers[category]"
             @apply="fetchData"
@@ -9,6 +20,7 @@
             v-if="sensorsData"
             :headers="headers[category]"
             :data="sensorsData"
+            @rowClick="handleRowClick"
         >
         </tableComponent>
     </div>
@@ -72,6 +84,7 @@ export default {
                 },
                     
             },
+            filters: {},
         };
     },
     mounted() {
@@ -79,8 +92,15 @@ export default {
     },
     methods: {
         async fetchData(filters={}) {
-            this.sensorsData = await CategoryService.getCategory(this.category, filters.filters, filters.sort);
+            this.filters = filters;
+            this.sensorsData = await CategoryService.getCategory(this.category, this.filters.filters, this.filters.sort);
         },
+        async downloadData(format) {
+            await CategoryService.downloadCategory(this.category, this.filters.filters, this.filters.sort, `${this.category}_sensors_data`,format);
+        },
+        handleRowClick(row){
+            this.$router.push(`/sensors/${this.category}/${row.Id}`);
+        }
     },
 };
 </script>

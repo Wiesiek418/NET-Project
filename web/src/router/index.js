@@ -1,18 +1,25 @@
 import { createWebHistory, createRouter } from 'vue-router'
 
 import Home from '../views/sides/Home.vue'
-import About from '../views/sides/About.vue'
+import Blockchain from '../views/sides/Blockchain.vue'
+import SensorView from '../views/sides/SensorView.vue'
 
 const routes = [
     {
         path: '/',
         name: 'Home',
-        component: Home
+        component: Home,
+        alias: '/sensors'
+    },
+    {
+        path: '/sensors/:category/:id',
+        name: 'SensorsView',
+        component: SensorView
     },
     {
         path: '/blockchain',
         name: 'Blockchain',
-        component: About
+        component: Blockchain
     }
 ]
 

@@ -1,6 +1,16 @@
-@api_src_HostAddress = http://localhost:5000/api2
+@api_src_HostAddress = http://localhost:5000/api
 
 GET {{api_src_HostAddress}}/baking
+Accept: application/json
+
+###
+
+GET {{api_src_HostAddress}}/wallet
+Accept: application/json
+
+###
+
+GET {{api_src_HostAddress}}/wallet/balances?raw=true
 Accept: application/json
 
 ###

@@ -11,10 +11,30 @@ class CategoryService {
         if (sort) {
             url += `sort=${convertSort(sort)}&`;
         }
-        console.log(url);
         const response =  await ApiService.get(url);
         return response;
     }
+
+    async getSensorById(category, sensorId) {
+        let url = `/${category}?`;
+        const filter = { Id: `=${sensorId}` };
+        url += `filter=${convertFilters(filter)}`;
+
+        const response =  await ApiService.get(url);
+        return response;
+    }
+
+    async downloadCategory(category, filter, sort, filename, format='json') {
+        let url = `/${category}?`;
+        if (filter) {
+            url += `filter=${convertFilters(filter)}&`;
+        }
+        if (sort) {
+            url += `sort=${convertSort(sort)}&`;
+        }
+        await ApiService.download(url, {}, filename, format);
+    }
+
 }
 
 export default new CategoryService()

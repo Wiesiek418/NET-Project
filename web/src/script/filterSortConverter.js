@@ -7,7 +7,6 @@ export function convertFilters(filters){
     { regex: /^=/, op: 'eq' }
   ];
 
-  console.log(filters);
    const parts = Object.entries(filters)
     .filter(([key, value]) => value !== null && value !== undefined && value !== '')
     .map(([key, val]) => {
