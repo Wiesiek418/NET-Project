@@ -10,24 +10,29 @@ services:
       - /api/bin
       - /api/obj
     environment:
-      - ASPNETCORE_ENVIRONMENT=dev
-      # Database config
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Shared Database Configuration
       - Database__ConnectionString=mongodb://root:example@mongodb:27017
       - Database__DatabaseName=sensordb
-      - Database__ConveyorCollection=conveyor_readings
-      - Database__BakingCollection=baking_readings
-      - Database__DoughCollection=dough_readings
-      - Database__PackingCollection=packing_readings
-      # MQTT config
-      - Mqtt__BrokerHost=mqtt
-      - Mqtt__BrokerPort=1883
-      - Mqtt__ClientId=mqtt-listener
-      - Mqtt__Username=
-      - Mqtt__Password=
-      - Mqtt__TopicConveyor=sensors/conveyor
-      - Mqtt__TopicBaking=sensors/baking
-      - Mqtt__TopicDough=sensors/dough
-      - Mqtt__TopicPacking=sensors/packing
+      # Sensors Domain Configuration
+      - Sensors__Collections__Conveyor=conveyor_readings
+      - Sensors__Collections__Baking=baking_readings
+      - Sensors__Collections__Dough=dough_readings
+      - Sensors__Collections__Packing=packing_readings
+      - Sensors__Mqtt__BrokerHost=mqtt
+      - Sensors__Mqtt__BrokerPort=1883
+      - Sensors__Mqtt__ClientId=mqtt-listener
+      - Sensors__Mqtt__Username=
+      - Sensors__Mqtt__Password=
+      - Sensors__Mqtt__Topics__Conveyor=sensors/conveyor
+      - Sensors__Mqtt__Topics__Baking=sensors/baking
+      - Sensors__Mqtt__Topics__Dough=sensors/dough
+      - Sensors__Mqtt__Topics__Packing=sensors/packing
+      # Blockchain Domain Configuration
+      - Blockchain__Collections__Wallets=sensor_wallets
+      - Blockchain__RpcUrl=https://sepolia.infura.io/v3/3a9054388e6748308aac294ff334b4c2
+      - Blockchain__TokenAddress=0x76a7854fB1f3bAd944F7aD88D5b9f749430f5613
+      - Blockchain__TokenDecimals=18
     depends_on:
       - mongo
       - mqtt

@@ -1,7 +1,9 @@
+using Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddMongo();
-builder.AddMqtt();
+builder.AddMongoInfrastructure();
+builder.AddMqttInfrastructure();
 
 builder.Services.AddControllers()
     .AddJsonOptions(
@@ -37,8 +39,5 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
-// Map weather endpoint for the prototype frontend
-app.MapWeatherEndpoints();
 
 app.Run();
