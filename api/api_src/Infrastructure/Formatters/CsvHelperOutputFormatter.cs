@@ -1,9 +1,9 @@
+using System.Globalization;
+using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Net.Http.Headers;
-using System.Globalization;
-using System.Text;
 
 public class CsvHelperOutputFormatter : TextOutputFormatter
 {
@@ -38,13 +38,9 @@ public class CsvHelperOutputFormatter : TextOutputFormatter
 
         // list or single object
         if (context.Object is IEnumerable<object> list)
-        {
             await csv.WriteRecordsAsync(list);
-        }
         else
-        {
             await csv.WriteRecordsAsync(new[] { context.Object });
-        }
 
         await writer.FlushAsync();
     }

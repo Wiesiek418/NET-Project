@@ -1,9 +1,9 @@
 namespace Domains.Blockchain.Infrastructure;
 
 /// <summary>
-/// Settings for the Blockchain domain.
-/// Contains blockchain configuration and MongoDB collection names.
-/// Database connection is shared at application level.
+///     Settings for the Blockchain domain.
+///     Contains blockchain configuration and MongoDB collection names.
+///     Database connection is shared at application level.
 /// </summary>
 public class BlockchainSettings
 {
@@ -14,7 +14,7 @@ public class BlockchainSettings
 }
 
 /// <summary>
-/// MongoDB collection names for blockchain data.
+///     MongoDB collection names for blockchain data.
 /// </summary>
 public class BlockchainCollectionsSettings
 {

@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-using Domains.Blockchain.Models;
 using Domains.Blockchain.Application;
+using Domains.Blockchain.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Domains.Blockchain.API;
 
@@ -17,11 +17,15 @@ public class WalletController : ControllerBase
 
     // GET /api/wallet/balances?raw=true
     [HttpGet("balances")]
-    public async Task<IEnumerable<WalletBalance>> GetBalances([FromQuery] bool raw = false) => 
-        await _service.GetBalancesAsync(raw);
+    public async Task<IEnumerable<WalletBalance>> GetBalances([FromQuery] bool raw = false)
+    {
+        return await _service.GetBalancesAsync(raw);
+    }
 
     // GET /api/wallet
     [HttpGet]
-    public async Task<IEnumerable<WalletInfo>> GetAllWallets() => 
-        await _service.GetAllWalletsAsync();
+    public async Task<IEnumerable<WalletInfo>> GetAllWallets()
+    {
+        return await _service.GetAllWalletsAsync();
+    }
 }

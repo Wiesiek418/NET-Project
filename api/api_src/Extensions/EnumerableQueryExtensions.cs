@@ -22,7 +22,8 @@ public static class EnumerableQueryExtensions
                 var op = parts[1].ToLowerInvariant();
                 var value = parts[2];
 
-                var prop = typeof(T).GetProperty(fieldName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                var prop = typeof(T).GetProperty(fieldName,
+                    BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                 if (prop == null) continue;
 
                 query = query.Where(item => ApplyPredicate(item, prop, op, value));
@@ -37,14 +38,13 @@ public static class EnumerableQueryExtensions
             {
                 var fieldName = parts[0];
                 var direction = parts[1].ToLowerInvariant();
-                var prop = typeof(T).GetProperty(fieldName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                var prop = typeof(T).GetProperty(fieldName,
+                    BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
                 if (prop != null)
-                {
-                    query = direction == "desc" 
-                        ? query.OrderByDescending(x => prop.GetValue(x)) 
+                    query = direction == "desc"
+                        ? query.OrderByDescending(x => prop.GetValue(x))
                         : query.OrderBy(x => prop.GetValue(x));
-                }
             }
         }
 
@@ -55,9 +55,9 @@ public static class EnumerableQueryExtensions
     {
         var itemValue = prop.GetValue(item);
         if (itemValue == null) return false;
-        
+
         double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var numericFilterValue);
-        double? numericItemValue = ConvertToDouble(itemValue);
+        var numericItemValue = ConvertToDouble(itemValue);
 
         return op switch
         {

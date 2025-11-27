@@ -17,18 +17,13 @@ public static class PackingLineStatus
 
 public class PackingLineReading : SensorReading
 {
-    [BsonElement("conveyorSpeed")]
-    public double ConveyorSpeed { get; set; }
+    [BsonElement("conveyorSpeed")] public double ConveyorSpeed { get; set; }
 
-    [BsonElement("packageCount")]
-    public int PackageCount { get; set; }
+    [BsonElement("packageCount")] public int PackageCount { get; set; }
 
-    [BsonElement("sealTemperature")]
-    public double SealTemperature { get; set; }
+    [BsonElement("sealTemperature")] public double SealTemperature { get; set; }
 
-    [BsonElement("errorCount")]
-    public int ErrorCount { get; set; }
+    [BsonElement("errorCount")] public int ErrorCount { get; set; }
 
-    [BsonElement("status")]
-    public string Status { get; set; } = string.Empty;
+    [BsonElement("status")] public string Status { get; set; } = string.Empty;
 }

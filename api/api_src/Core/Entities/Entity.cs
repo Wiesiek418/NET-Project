@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace Core.Entities;
 
 /// <summary>
-/// Base class for all entities with an Id.
+///     Base class for all entities with an Id.
 /// </summary>
 public abstract class Entity
 {
