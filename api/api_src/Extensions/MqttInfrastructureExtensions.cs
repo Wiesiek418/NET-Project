@@ -1,25 +1,24 @@
-using Microsoft.Extensions.Options;
-using Infrastructure.Mqtt;
 using Domains.Sensors.EventHandlers;
 using Domains.Sensors.Infrastructure;
+using Infrastructure.Mqtt;
 
 namespace Extensions;
 
 /// <summary>
-/// Extension methods for configuring MQTT infrastructure with the new clean architecture.
-/// Registers message router, listener service, handlers, and work queue.
-/// Handlers are registered as Transient to allow proper scoped dependency injection.
-/// Settings are registered using the Options pattern with configuration binding.
+///     Extension methods for configuring MQTT infrastructure with the new clean architecture.
+///     Registers message router, listener service, handlers, and work queue.
+///     Handlers are registered as Transient to allow proper scoped dependency injection.
+///     Settings are registered using the Options pattern with configuration binding.
 /// </summary>
 public static class MqttInfrastructureExtensions
 {
     /// <summary>
-    /// Adds MQTT infrastructure services and handlers.
+    ///     Adds MQTT infrastructure services and handlers.
     /// </summary>
     /// <remarks>
-    /// This method should be called after AddMongoInfrastructure to ensure SensorService is registered.
-    /// Handlers are registered as Transient to properly resolve scoped SensorService dependencies.
-    /// MQTT settings are configured from the "Sensors:Mqtt" configuration section.
+    ///     This method should be called after AddMongoInfrastructure to ensure SensorService is registered.
+    ///     Handlers are registered as Transient to properly resolve scoped SensorService dependencies.
+    ///     MQTT settings are configured from the "Sensors:Mqtt" configuration section.
     /// </remarks>
     public static WebApplicationBuilder AddMqttInfrastructure(this WebApplicationBuilder builder)
     {

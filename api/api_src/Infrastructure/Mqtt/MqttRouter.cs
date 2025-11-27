@@ -3,13 +3,13 @@ using System.Text.RegularExpressions;
 namespace Infrastructure.Mqtt;
 
 /// <summary>
-/// Routes MQTT messages to appropriate handlers based on topic matching.
-/// Lazily resolves handlers from DI scope to support scoped dependencies.
+///     Routes MQTT messages to appropriate handlers based on topic matching.
+///     Lazily resolves handlers from DI scope to support scoped dependencies.
 /// </summary>
 public class MqttMessageRouter
 {
-    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<MqttMessageRouter> _logger;
+    private readonly IServiceProvider _serviceProvider;
     private IEnumerable<IMqttMessageHandler>? _handlersCache;
 
     public MqttMessageRouter(
@@ -26,7 +26,7 @@ public class MqttMessageRouter
         // This allows handlers with scoped dependencies to work correctly
         using var scope = _serviceProvider.CreateScope();
         var handlers = scope.ServiceProvider.GetServices<IMqttMessageHandler>();
-        
+
         var matchedHandlers = handlers.Where(h => TopicMatches(h.TopicFilter, topic)).ToList();
 
         if (!matchedHandlers.Any())
@@ -36,7 +36,6 @@ public class MqttMessageRouter
         }
 
         foreach (var handler in matchedHandlers)
-        {
             try
             {
                 await handler.HandleMessageAsync(payload, ct);
@@ -45,7 +44,6 @@ public class MqttMessageRouter
             {
                 _logger.LogError(ex, "Error handling topic {Topic} by {Handler}", topic, handler.GetType().Name);
             }
-        }
     }
 
     private static bool TopicMatches(string filter, string topic)

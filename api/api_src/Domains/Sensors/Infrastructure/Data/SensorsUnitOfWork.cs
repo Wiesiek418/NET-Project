@@ -1,19 +1,17 @@
-using MongoDB.Driver;
-using Infrastructure.Data.MongoDB;
-using Core.Abstractions;
 using Domains.Sensors.Models;
+using Infrastructure.Data.MongoDB;
 
 namespace Domains.Sensors.Infrastructure.Data;
 
 /// <summary>
-/// Unit of Work for Sensors domain.
-/// Manages all sensor reading repositories (Conveyor, Baking, Dough, Packing).
+///     Unit of Work for Sensors domain.
+///     Manages all sensor reading repositories (Conveyor, Baking, Dough, Packing).
 /// </summary>
 public class SensorsUnitOfWork : MongoUnitOfWork
 {
     private readonly SensorsMongoContext _sensorsContext;
 
-    public SensorsUnitOfWork(SensorsMongoContext sensorsContext) 
+    public SensorsUnitOfWork(SensorsMongoContext sensorsContext)
         : base(sensorsContext.Database)
     {
         _sensorsContext = sensorsContext;

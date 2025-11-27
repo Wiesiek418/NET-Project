@@ -1,31 +1,37 @@
+using Domains.Sensors.Infrastructure.Data;
+using Domains.Sensors.Models;
+using Domains.Blockchain.Application;
 using Extensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using Domains.Sensors.Infrastructure.Data;
-using Domains.Sensors.Models;
 
 namespace Domains.Sensors.Application;
 
 /// <summary>
-/// Application service for sensor domain operations.
-/// Uses repositories abstracted from MongoDB.
-/// Supports filtering and sorting of sensor readings.
+///     Application service for sensor domain operations.
+///     Uses repositories abstracted from MongoDB.
+///     Supports filtering and sorting of sensor readings.
 /// </summary>
 public class SensorService
 {
-    private readonly SensorsUnitOfWork _unitOfWork;
     private readonly SensorsMongoContext _context;
+    private readonly SensorsUnitOfWork _unitOfWork;
+    private readonly WalletService _walletService;
 
-    public SensorService(SensorsUnitOfWork unitOfWork, SensorsMongoContext context)
+    public SensorService(
+        SensorsUnitOfWork unitOfWork, 
+        SensorsMongoContext context,
+        WalletService walletService) 
     {
         _unitOfWork = unitOfWork;
         _context = context;
+        _walletService = walletService;
     }
 
     #region Conveyor Belt Readings
 
     public async Task<IEnumerable<ConveyorBeltReading>> GetAllConveyorReadingsAsync(
-        string? filter = null, 
+        string? filter = null,
         string? sort = null,
         CancellationToken ct = default)
     {
@@ -44,6 +50,8 @@ public class SensorService
         var repository = _unitOfWork.GetRepository<ConveyorBeltReading>();
         await repository.CreateAsync(reading, ct);
         await _unitOfWork.SaveChangesAsync(ct);
+        
+        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId,"Conveyor", reading.WalletAddress, ct);
     }
 
     #endregion
@@ -70,6 +78,8 @@ public class SensorService
         var repository = _unitOfWork.GetRepository<BakingFurnaceReading>();
         await repository.CreateAsync(reading, ct);
         await _unitOfWork.SaveChangesAsync(ct);
+        
+        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId,"Baking", reading.WalletAddress, ct);
     }
 
     #endregion
@@ -96,6 +106,8 @@ public class SensorService
         var repository = _unitOfWork.GetRepository<DoughMixerReading>();
         await repository.CreateAsync(reading, ct);
         await _unitOfWork.SaveChangesAsync(ct);
+        
+        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId,"Dough", reading.WalletAddress, ct);
     }
 
     #endregion
@@ -122,15 +134,17 @@ public class SensorService
         var repository = _unitOfWork.GetRepository<PackingLineReading>();
         await repository.CreateAsync(reading, ct);
         await _unitOfWork.SaveChangesAsync(ct);
+        
+        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId,"Packing", reading.WalletAddress, ct);
     }
 
     #endregion
-    
+
     #region Global Sensor Operations
 
     public async Task<IEnumerable<SensorSummary>> GetAllSensorsSummaryAsync(
-        string? filter = null, 
-        string? sort = null, 
+        string? filter = null,
+        string? sort = null,
         CancellationToken ct = default)
     {
         var conveyorTask = GetCollectionSummaryAsync(_context.ConveyorReadings, "Conveyor", ct);
@@ -139,19 +153,19 @@ public class SensorService
         var packingTask = GetCollectionSummaryAsync(_context.PackingReadings, "Packing", ct);
 
         await Task.WhenAll(conveyorTask, bakingTask, doughTask, packingTask);
-        
+
         var allSensors = conveyorTask.Result
             .Concat(bakingTask.Result)
             .Concat(doughTask.Result)
             .Concat(packingTask.Result);
-        
+
         return allSensors.ApplyQuery(filter, sort);
     }
 
     // Pomocnicza metoda generyczna do grupowania (Group By) w MongoDB
     private async Task<List<SensorSummary>> GetCollectionSummaryAsync<T>(
-        IMongoCollection<T> collection, 
-        string typeName, 
+        IMongoCollection<T> collection,
+        string typeName,
         CancellationToken ct) where T : SensorReading
     {
         var query = collection.AsQueryable()

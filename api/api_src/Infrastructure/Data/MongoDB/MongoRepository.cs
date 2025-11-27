@@ -1,14 +1,14 @@
-using MongoDB.Driver;
-using MongoDB.Bson;
-using Core.Abstractions;
 using System.Globalization;
+using Core.Abstractions;
 using Core.Entities;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace Infrastructure.Data.MongoDB;
 
 /// <summary>
-/// MongoDB-specific repository implementation.
-/// Isolates MongoDB Driver from domain logic.
+///     MongoDB-specific repository implementation.
+///     Isolates MongoDB Driver from domain logic.
 /// </summary>
 public class MongoRepository<T> : IRepository<T> where T : class
 {
@@ -54,14 +54,15 @@ public class MongoRepository<T> : IRepository<T> where T : class
         var id = entity.GetType().GetProperty("Id")?.GetValue(entity)?.ToString();
         if (string.IsNullOrEmpty(id)) throw new InvalidOperationException("Entity must have an Id");
 
-        var filter = Builders<T>.Filter.Eq("_id", id);
-        await _collection.ReplaceOneAsync(filter, entity, cancellationToken: ct);
+        var filter = Builders<T>.Filter.Eq("_id", new ObjectId(id));
+        var result = await _collection.ReplaceOneAsync(filter, entity, cancellationToken: ct);
+
     }
 
     public virtual async Task DeleteAsync(string id, CancellationToken ct = default)
     {
         var filter = Builders<T>.Filter.Eq("_id", id);
-        await _collection.DeleteOneAsync(filter, cancellationToken: ct);
+        await _collection.DeleteOneAsync(filter, ct);
     }
 
     private SortDefinition<T> BuildSortDefinition(string? sort)
@@ -78,8 +79,8 @@ public class MongoRepository<T> : IRepository<T> where T : class
         var fieldName = parts[0];
         var direction = parts[1].ToLowerInvariant();
 
-        return (direction == "desc") 
-            ? Builders<T>.Sort.Descending(fieldName) 
+        return direction == "desc"
+            ? Builders<T>.Sort.Descending(fieldName)
             : Builders<T>.Sort.Ascending(fieldName);
     }
 
@@ -99,33 +100,41 @@ public class MongoRepository<T> : IRepository<T> where T : class
             var op = parts[1].ToLowerInvariant();
             var value = parts[2];
 
-            // Attempt to parse value as double for numeric comparisons
-            double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var numericValue);
+            bool isNumber = double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var numericValue);
 
             switch (op)
             {
                 case "eq":
-                    filters.Add(Builders<T>.Filter.Eq(field, value));
+                    filters.Add(isNumber
+                        ? Builders<T>.Filter.Eq(field, numericValue)
+                        : Builders<T>.Filter.Eq(field, value));
                     break;
                 case "gt":
-                    filters.Add(Builders<T>.Filter.Gt(field, numericValue));
+                    filters.Add(isNumber
+                        ? Builders<T>.Filter.Gt(field, numericValue)
+                        : Builders<T>.Filter.Eq(field, value));
                     break;
                 case "gte":
-                    filters.Add(Builders<T>.Filter.Gte(field, numericValue));
+                    filters.Add(isNumber
+                        ? Builders<T>.Filter.Gte(field, numericValue)
+                        : Builders<T>.Filter.Eq(field, value));
                     break;
                 case "lt":
-                    filters.Add(Builders<T>.Filter.Lt(field, numericValue));
+                    filters.Add(isNumber
+                        ? Builders<T>.Filter.Lt(field, numericValue)
+                        : Builders<T>.Filter.Eq(field, value));
                     break;
                 case "lte":
-                    filters.Add(Builders<T>.Filter.Lte(field, numericValue));
+                    filters.Add(isNumber
+                        ? Builders<T>.Filter.Lte(field, numericValue)
+                        : Builders<T>.Filter.Eq(field, value));
                     break;
                 case "contains":
-                    // Case-insensitive contains
                     filters.Add(Builders<T>.Filter.Regex(field, new BsonRegularExpression(value, "i")));
                     break;
             }
         }
 
-        return (filters.Count == 0) ? Builders<T>.Filter.Empty : Builders<T>.Filter.And(filters);
+        return filters.Count == 0 ? Builders<T>.Filter.Empty : Builders<T>.Filter.And(filters);
     }
 }

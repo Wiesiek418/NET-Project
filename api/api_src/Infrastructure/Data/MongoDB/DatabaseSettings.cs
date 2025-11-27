@@ -1,8 +1,8 @@
 namespace Infrastructure.Data.MongoDB;
 
 /// <summary>
-/// Shared database settings for all domains.
-/// All domains use the same MongoDB connection and database.
+///     Shared database settings for all domains.
+///     All domains use the same MongoDB connection and database.
 /// </summary>
 public class MongoDBSettings
 {

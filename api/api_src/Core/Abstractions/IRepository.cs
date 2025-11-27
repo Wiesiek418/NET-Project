@@ -1,7 +1,7 @@
 namespace Core.Abstractions;
 
 /// <summary>
-/// Generic repository abstraction - domain-agnostic, no MongoDB dependencies.
+///     Generic repository abstraction - domain-agnostic, no MongoDB dependencies.
 /// </summary>
 public interface IRepository<T> where T : class
 {

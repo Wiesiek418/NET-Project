@@ -1,21 +1,18 @@
-using Core.Abstractions;
+using System.Numerics;
 using Domains.Blockchain.Infrastructure;
 using Domains.Blockchain.Infrastructure.Data;
 using Domains.Blockchain.Models;
-using Nethereum.Web3;
-using System.Numerics;
 using Microsoft.Extensions.Options;
+using Nethereum.Web3;
+using System.Security.Cryptography;
 
 namespace Domains.Blockchain.Application;
 
 /// <summary>
-/// Application service for wallet operations.
+///     Application service for wallet operations.
 /// </summary>
 public class WalletService
 {
-    private readonly WalletUnitOfWork _unitOfWork;
-    private readonly BlockchainSettings _settings;
-    private Web3 _web3;
     private readonly string _abi = @"[
         {
             ""constant"": true,
@@ -26,8 +23,12 @@ public class WalletService
         }
     ]";
 
+    private readonly BlockchainSettings _settings;
+    private readonly WalletUnitOfWork _unitOfWork;
+    private readonly Web3 _web3;
+
     public WalletService(
-        WalletUnitOfWork unitOfWork, 
+        WalletUnitOfWork unitOfWork,
         IOptions<BlockchainSettings> _settings)
     {
         _unitOfWork = unitOfWork;
@@ -48,26 +49,55 @@ public class WalletService
         var balanceOf = contract.GetFunction("balanceOf");
 
         // For testing purposes, if no wallets are found, use a default one
-        if (!wallets.Any()) {
-            wallets = new List<WalletInfo> 
+        if (!wallets.Any())
+            wallets = new List<WalletInfo>
             {
-                new WalletInfo { Id = "1", Address = "0xe3587046989c92D55bA245E6DC941EE47C479a92", SensorType = "SensorA" }
+                new() { Id = "1", Address = "0xe3587046989c92D55bA245E6DC941EE47C479a92", SensorType = "SensorA" }
             };
-        }
 
-        var res = wallets.Select(async w => 
+        var res = wallets.Select(async w =>
         {
-            BigInteger rawValue = await balanceOf.CallAsync<BigInteger>(w.Address);
-            double balance = raw ? (double)rawValue : (double)rawValue / Math.Pow(10, _settings.TokenDecimals);
+            var rawValue = await balanceOf.CallAsync<BigInteger>(w.Address);
+            var balance = raw ? (double)rawValue : (double)rawValue / Math.Pow(10, _settings.TokenDecimals);
 
             return new WalletBalance
             {
                 Id = w.Id,
+                SensorId = w.SensorId,
                 SensorType = w.SensorType,
                 Balance = balance
             };
         });
 
         return await Task.WhenAll(res);
+    }
+
+    public async Task RegisterOrUpdateSensorAsync(int sensorId, string sensorType, string? walletAddress,
+        CancellationToken ct = default)
+    {
+        var repository = _unitOfWork.GetRepository<WalletInfo>();
+
+        // Checking if sensor already exists
+        var filter = $"SensorId:eq:{sensorId},SensorType:eq:{sensorType}";
+        var existingWallets = await repository.GetAllAsync(filter, null, ct);
+        var walletEntry = existingWallets.FirstOrDefault();
+
+        if (walletEntry == null)
+        {
+            var newWallet = new WalletInfo
+            {
+                SensorId = sensorId,
+                SensorType = sensorType,
+                Address = walletAddress ?? string.Empty
+            };
+            await repository.CreateAsync(newWallet, ct);
+        }
+        else if (!string.IsNullOrEmpty(walletAddress) && walletEntry.Address != walletAddress)
+        {
+            walletEntry.Address = walletAddress;
+            await repository.UpdateAsync(walletEntry, ct);
+        }
+
+        await _unitOfWork.SaveChangesAsync(ct);
     }
 }

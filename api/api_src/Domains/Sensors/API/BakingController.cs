@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-using Domains.Sensors.Models;
 using Domains.Sensors.Application;
+using Domains.Sensors.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Domains.Sensors.API;
 
@@ -10,15 +10,19 @@ public class BakingController : ControllerBase
 {
     private readonly SensorService _sensorService;
 
-    public BakingController(SensorService sensorService) =>
+    public BakingController(SensorService sensorService)
+    {
         _sensorService = sensorService;
+    }
 
     [HttpGet]
     public async Task<IEnumerable<BakingFurnaceReading>> Get(
-        [FromQuery] string? filter, 
+        [FromQuery] string? filter,
         [FromQuery] string? sort,
-        CancellationToken ct) =>
-        await _sensorService.GetAllBakingReadingsAsync(filter, sort, ct);
+        CancellationToken ct)
+    {
+        return await _sensorService.GetAllBakingReadingsAsync(filter, sort, ct);
+    }
 
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] BakingFurnaceReading reading, CancellationToken ct)

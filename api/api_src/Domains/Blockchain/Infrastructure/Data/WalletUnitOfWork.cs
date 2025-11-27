@@ -1,19 +1,17 @@
-using MongoDB.Driver;
-using Infrastructure.Data.MongoDB;
-using Core.Abstractions;
 using Domains.Blockchain.Models;
+using Infrastructure.Data.MongoDB;
 
 namespace Domains.Blockchain.Infrastructure.Data;
 
 /// <summary>
-/// Unit of Work for Wallet domain.
-/// Manages wallet-related repositories.
+///     Unit of Work for Wallet domain.
+///     Manages wallet-related repositories.
 /// </summary>
 public class WalletUnitOfWork : MongoUnitOfWork
 {
     private readonly WalletMongoContext _walletContext;
 
-    public WalletUnitOfWork(WalletMongoContext walletContext) 
+    public WalletUnitOfWork(WalletMongoContext walletContext)
         : base(walletContext.Database)
     {
         _walletContext = walletContext;

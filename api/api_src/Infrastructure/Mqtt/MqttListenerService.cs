@@ -1,21 +1,22 @@
-using MQTTnet;
-using Microsoft.Extensions.Options;
 using System.Text;
+using Microsoft.Extensions.Options;
+using MQTTnet;
+using MQTTnet.Protocol;
 
 namespace Infrastructure.Mqtt;
 
 public class MqttListenerService : BackgroundService
 {
     private readonly ILogger<MqttListenerService> _logger;
+    private readonly MqttWorkQueue _queue;
     private readonly MqttSettings _settings;
     private IMqttClient? _mqttClient;
-    private MqttWorkQueue _queue;
 
     public MqttListenerService(
         ILogger<MqttListenerService> logger,
         IOptions<MqttSettings> options,
         MqttWorkQueue queue
-        )
+    )
     {
         _logger = logger;
         _settings = options.Value;
@@ -27,38 +28,33 @@ public class MqttListenerService : BackgroundService
         var mqttFactory = new MqttClientFactory();
         _mqttClient = mqttFactory.CreateMqttClient();
 
-        if (_mqttClient == null)
-        {
-            throw new Exception("MQTTClient failed to start");
-        }
+        if (_mqttClient == null) throw new Exception("MQTTClient failed to start");
 
         var options = new MqttClientOptionsBuilder()
             .WithClientId(_settings.ClientId)
             .WithTcpServer(_settings.BrokerHost, _settings.BrokerPort)
-            .WithKeepAlivePeriod(TimeSpan.FromSeconds(60))  // or 120
+            .WithKeepAlivePeriod(TimeSpan.FromSeconds(60)) // or 120
             .WithCleanSession()
-            .WithWillQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+            .WithWillQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
             .Build();
 
         _mqttClient.DisconnectedAsync += async e =>
         {
             if (e.ClientWasConnected)
-            {
                 // Use the current options as the new options.
                 await _mqttClient.ConnectAsync(options);
-            }
         };
 
         _mqttClient.ApplicationMessageReceivedAsync += async e =>
         {
             try
             {
-                string msg = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+                var msg = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
 
                 await _queue.Queue.Writer.WriteAsync(
                     (e.ApplicationMessage.Topic, msg),
                     stoppingToken);
-            } 
+            }
             catch (DecoderFallbackException ex)
             {
                 _logger.LogWarning($"Failed to decode message from {e.ApplicationMessage.Topic} - {ex}");
@@ -93,7 +89,6 @@ public class MqttListenerService : BackgroundService
     private async Task StopClientAsync()
     {
         if (_mqttClient != null && _mqttClient.IsConnected)
-        {
             try
             {
                 await _mqttClient.DisconnectAsync();
@@ -103,7 +98,6 @@ public class MqttListenerService : BackgroundService
             {
                 _logger.LogWarning(ex, "Error while disconnecting MQTT client.");
             }
-        }
 
         _mqttClient?.Dispose();
         _mqttClient = null;

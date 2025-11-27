@@ -16,18 +16,13 @@ public static class DoughMixerStatus
 
 public class DoughMixerReading : SensorReading
 {
-    [BsonElement("rotationSpeed")]
-    public double RotationSpeed { get; set; }
+    [BsonElement("rotationSpeed")] public double RotationSpeed { get; set; }
 
-    [BsonElement("motorTemperature")]
-    public double MotorTemperature { get; set; }
+    [BsonElement("motorTemperature")] public double MotorTemperature { get; set; }
 
-    [BsonElement("vibrationLevel")]
-    public double VibrationLevel { get; set; }
+    [BsonElement("vibrationLevel")] public double VibrationLevel { get; set; }
 
-    [BsonElement("loadWeight")]
-    public double LoadWeight { get; set; }
+    [BsonElement("loadWeight")] public double LoadWeight { get; set; }
 
-    [BsonElement("status")]
-    public string Status { get; set; } = string.Empty;
+    [BsonElement("status")] public string Status { get; set; } = string.Empty;
 }

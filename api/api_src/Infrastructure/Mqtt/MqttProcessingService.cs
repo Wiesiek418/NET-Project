@@ -2,12 +2,12 @@ namespace Infrastructure.Mqtt;
 
 public class MqttProcessingService : BackgroundService
 {
+    private readonly ILogger<MqttProcessingService> _logger;
     private readonly MqttWorkQueue _queue;
     private readonly MqttMessageRouter _router;
-    private readonly ILogger<MqttProcessingService> _logger;
 
     public MqttProcessingService(
-        MqttWorkQueue queue, 
+        MqttWorkQueue queue,
         MqttMessageRouter router,
         ILogger<MqttProcessingService> logger)
     {
@@ -18,9 +18,8 @@ public class MqttProcessingService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await foreach (var (topic, payload) in 
-            _queue.Queue.Reader.ReadAllAsync(stoppingToken))
-        {
+        await foreach (var (topic, payload) in
+                       _queue.Queue.Reader.ReadAllAsync(stoppingToken))
             try
             {
                 await _router.RouteMessageAsync(topic, payload, stoppingToken);
@@ -29,6 +28,5 @@ public class MqttProcessingService : BackgroundService
             {
                 _logger.LogError(ex, "Error processing MQTT message");
             }
-        }
     }
 }

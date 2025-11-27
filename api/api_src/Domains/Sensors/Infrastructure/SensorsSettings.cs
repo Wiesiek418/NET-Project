@@ -1,9 +1,9 @@
 namespace Domains.Sensors.Infrastructure;
 
 /// <summary>
-/// Settings for the Sensors domain.
-/// Contains MongoDB collection names and MQTT configuration.
-/// Database connection is shared at application level.
+///     Settings for the Sensors domain.
+///     Contains MongoDB collection names and MQTT configuration.
+///     Database connection is shared at application level.
 /// </summary>
 public class SensorsSettings
 {
@@ -12,7 +12,7 @@ public class SensorsSettings
 }
 
 /// <summary>
-/// MongoDB collection names for different sensor types.
+///     MongoDB collection names for different sensor types.
 /// </summary>
 public class SensorsCollectionsSettings
 {
@@ -23,7 +23,7 @@ public class SensorsCollectionsSettings
 }
 
 /// <summary>
-/// MQTT configuration for the Sensors domain.
+///     MQTT configuration for the Sensors domain.
 /// </summary>
 public class SensorsMqttSettings
 {
@@ -36,7 +36,7 @@ public class SensorsMqttSettings
 }
 
 /// <summary>
-/// MQTT topic configuration for sensor types.
+///     MQTT topic configuration for sensor types.
 /// </summary>
 public class SensorsMqttTopicsSettings
 {

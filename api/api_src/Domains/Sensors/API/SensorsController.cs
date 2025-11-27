@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
 using Domains.Sensors.Application;
 using Domains.Sensors.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Domains.Sensors.API;
 
@@ -18,7 +18,7 @@ public class SensorsController : ControllerBase
     // GET /api/sensors?filter=type:eq:Conveyor&sort=sensorId:asc
     [HttpGet]
     public async Task<IEnumerable<SensorSummary>> GetAll(
-        [FromQuery] string? filter, 
+        [FromQuery] string? filter,
         [FromQuery] string? sort,
         CancellationToken ct)
     {

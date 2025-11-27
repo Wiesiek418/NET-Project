@@ -28,18 +28,13 @@ public static class BakingFurnaceDoorStatus
 
 public class BakingFurnaceReading : SensorReading
 {
-    [BsonElement("temperature")]
-    public double Temperature { get; set; }
+    [BsonElement("temperature")] public double Temperature { get; set; }
 
-    [BsonElement("humidity")]
-    public double Humidity { get; set; }
+    [BsonElement("humidity")] public double Humidity { get; set; }
 
-    [BsonElement("gasFlow")]
-    public double GasFlow { get; set; }
+    [BsonElement("gasFlow")] public double GasFlow { get; set; }
 
-    [BsonElement("doorStatus")]
-    public string DoorStatus { get; set; } = string.Empty;
+    [BsonElement("doorStatus")] public string DoorStatus { get; set; } = string.Empty;
 
-    [BsonElement("status")]
-    public string Status { get; set; } = string.Empty;
+    [BsonElement("status")] public string Status { get; set; } = string.Empty;
 }
