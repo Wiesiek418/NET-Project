@@ -22,7 +22,7 @@ class ApiService {
         ...headers
       },
       mode: 'cors',
-      credentials: 'omit', // lub 'include' jeśli używasz autoryzacji
+      credentials: 'omit',
       ...fetchOptions
     }
 
@@ -44,6 +44,7 @@ class ApiService {
   }
 
   async get(endpoint, options = {}) {
+    console.log('GET request to:', endpoint)
     return this.request(endpoint, { ...options, method: 'GET' })
   }
 }

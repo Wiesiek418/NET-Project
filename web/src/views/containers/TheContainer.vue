@@ -33,21 +33,20 @@ export default {
 <style scoped>
 .container {
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   margin: 0;
   padding: 0;
 }
 
 .content-wrapper {
   display: flex;
-  overflow: hidden;
-  height: 100vh;
 }
 
 .main-container {
   flex: 1;
   padding: 1rem;
   margin: 1rem;
-  overflow-y: auto;
+  overflow: visible;
+  min-height: calc(100vh - 267px);
 }
 </style>
