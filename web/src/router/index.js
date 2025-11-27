@@ -1,4 +1,4 @@
-import { createMemoryHistory, createRouter } from 'vue-router'
+import { createWebHistory, createRouter } from 'vue-router'
 
 import Home from '../views/sides/Home.vue'
 import About from '../views/sides/About.vue'
@@ -10,14 +10,14 @@ const routes = [
         component: Home
     },
     {
-        path: '/about',
-        name: 'About',
+        path: '/blockchain',
+        name: 'Blockchain',
         component: About
     }
 ]
 
 const router = createRouter({
-    history: createMemoryHistory(),
+    history: createWebHistory(),
     routes
 })
 

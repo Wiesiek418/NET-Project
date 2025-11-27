@@ -4,24 +4,22 @@
             v-if="!disabledFilters"
         >
             <div
-                v-for="header in headers"
-                :key="header.value"
-                v-if="!excludedFilters.includes(header.value)"
+                v-for="(text, key) in headers"
+                :key="value"
+                v-if="!excludedFilters.includes(key)"
             >
-                <!-- Filter UI elements go here -->
-                <label :for="header.value">{{ header.text }}</label>
+                <label :for="key">{{ text }}</label>
                 <input
-                    :id="header.value"
+                    :id="key"
                     type="text"
                     :disabled="disabled"
-                    v-model="filterValues[header.value]"
+                    v-model="filterValues[key]"
                 />
             </div>
         </div>
         <div
             v-if="!disabledSorts"
         >
-            <!-- Sort UI elements go here -->
             <label>Sort</label>
             <select
                 :disabled="disabled"
@@ -29,8 +27,8 @@
             >
                 <option 
                     v-for="option in sortOptions"
-                    :value="option.value"
-                    :key="option.value"
+                    :value="option"
+                    :key="option.direction + option.field"
                 >
                     {{ option.text }}
                 </option>
@@ -53,7 +51,7 @@ export default {
     emits: ['apply'],
     props: {
         headers: {
-            type: Array,
+            type: Object,
             required: true,
         }, 
         excludedFilters: {
@@ -69,11 +67,11 @@ export default {
             default: false,
         },
         disabledFilters:{
-            type: boolean,
+            type: Boolean,
             default: false,
         },
         disabledSorts:{
-            type: boolean,
+            type: Boolean,
             default: false,
         },
     },
@@ -87,19 +85,19 @@ export default {
     mounted() {
         this.setSortOptions();
     },
-    method: {
+    methods: {
         setSortOptions() {
-            this.sortOptions = this.headers
-                .filter(header => !this.excludedSorts.includes(header.value))
-                .flatMap(header => ([
+            this.sortOptions = Object.entries(this.headers)
+                .filter(([key, text]) => !this.excludedSorts.includes(key))
+                .flatMap(([key, text]) => ([
                     {
-                        text: `${header.text} (Asc)`,
-                        field: header.value,
+                        text: `${text} (Asc)`,
+                        field: key,
                         direction: `asc`,
                     },
                     {
-                        text: `${header.text} (Desc)`,
-                        field: header.value,
+                        text: `${text} (Desc)`,
+                        field: key,
                         direction: `desc`,
                     },
                 ]));

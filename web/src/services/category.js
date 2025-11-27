@@ -1,4 +1,6 @@
 import ApiService from './api.js';
+import { convertFilters, convertSort } from '../script/filterSortConverter.js';
+
 
 class CategoryService {
     async getCategory(category, filter, sort) {
@@ -9,6 +11,7 @@ class CategoryService {
         if (sort) {
             url += `sort=${convertSort(sort)}&`;
         }
+        console.log(url);
         const response =  await ApiService.get(url);
         return response;
     }

@@ -32,8 +32,8 @@ export default {
     data() {
         return {
             menuItems: [
-                { name: 'Home', icon: '🏠', to: '/' },
-                { name: 'About', icon: '👤', to: '/about' },
+                { name: 'Sensors', icon: '🏠', to: '/' },
+                { name: 'Blockchain', icon: '👤', to: '/blockchain' },
             ]
         };
     }

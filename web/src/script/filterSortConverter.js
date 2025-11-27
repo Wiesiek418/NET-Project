@@ -1,4 +1,4 @@
-function convertFilters(filters){
+export function convertFilters(filters){
     const opsMap = [
     { regex: /^>=/, op: 'gt' },
     { regex: /^<=/, op: 'lte' },
@@ -7,29 +7,32 @@ function convertFilters(filters){
     { regex: /^=/, op: 'eq' }
   ];
 
-   const parts = filters.map(f => {
-    let val = f.value.toString();
-    let op = 'eq'; // domyślny operator
+  console.log(filters);
+   const parts = Object.entries(filters)
+    .filter(([key, value]) => value !== null && value !== undefined && value !== '')
+    .map(([key, val]) => {
+      val = val.toString();
+      let op = 'eq'; // domyślny operator
 
-    if (val.toLowerCase() === 'auto') {
-      op = 'eq';
-    } else {
-      for (const { regex, op: mappedOp } of opsMap) {
-        if (regex.test(val)) {
-          op = mappedOp;
-          val = val.replace(regex, '');
-          break;
+      if (val.toLowerCase() === 'auto') {
+        op = 'eq';
+      } else {
+        for (const { regex, op: mappedOp } of opsMap) {
+          if (regex.test(val)) {
+            op = mappedOp;
+            val = val.replace(regex, '');
+            break;
+          }
         }
       }
-    }
 
-    return `${encodeURIComponent(f.field)}:${op}:${encodeURIComponent(val)}`;
-  });
+      return `${encodeURIComponent(key)}:${op}:${encodeURIComponent(val)}`;
+    });
 
   return parts.join(',');
 }
 
-function convertSort(sort) {
-  if (!sort || !sort.length) return '';
-  return sort.map(s => `${encodeURIComponent(s.field)}:${s.direction}`).join(',');
+export function convertSort(sort) {
+  if (!sort || !sort.field) return '';
+  return `${encodeURIComponent(sort.field)}:${sort.direction}`;
 }
