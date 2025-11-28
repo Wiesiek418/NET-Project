@@ -76,10 +76,10 @@ services:
     volumes:
       - ./mongo/data:/data/db
 
-  # sensors:
-  #   build:
-  #     context: ./sensor
-  #     dockerfile: Dockerfile
-  #   depends_on:
-  #     - mqtt
-  #   command: python run_all.py --broker mqtt --baking-furnaces 2 --conveyor-belts 1 --dough-mixers 1 --packing-lines 1
+  sensors:
+    build:
+      context: ./sensor
+      dockerfile: Dockerfile
+    depends_on:
+      - mqtt
+    command: python run_all.py --broker mqtt --baking-furnaces 2 --conveyor-belts 1 --dough-mixers 1 --packing-lines 1

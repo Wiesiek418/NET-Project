@@ -22,7 +22,7 @@ class ApiService {
         ...headers
       },
       mode: 'cors',
-      credentials: 'omit', // lub 'include' jeśli używasz autoryzacji
+      credentials: 'omit',
       ...fetchOptions
     }
 
@@ -44,7 +44,53 @@ class ApiService {
   }
 
   async get(endpoint, options = {}) {
+    console.log('GET request to:', endpoint)
     return this.request(endpoint, { ...options, method: 'GET' })
+  }
+
+  async download(endpoint, options = {}, filename, format='json'){
+    if(!filename){
+      filename = 'download_' + Date.now();
+    }
+    const url = `${this.baseURL}${endpoint}`;
+    const headers = {
+      Accept: format === 'json' ? 'application/json' : 'text/csv',
+      ...(options.headers || {})
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+        credentials: 'omit',
+        ...options,
+        headers
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      let blob;
+      if(format === 'json'){
+        const data = await response.json();
+        blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      } else {
+        const text = await response.text();
+        blob = new Blob([text], { type: 'text/csv' });
+      }
+
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = filename + (format === 'json' ? '.json' : '.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+    }
+    catch(error){
+      throw error;
+    }
   }
 }
 

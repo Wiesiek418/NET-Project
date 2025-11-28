@@ -1,0 +1,19 @@
+:root{
+    /* --color-bg: #ecebe8; */
+    --color-bg: #f3f1e4;
+    --color-text: rgba(10, 10, 10, 1);
+
+    --font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    --font-size-base: 1em;
+    --font-weight-base: 400;
+    --font-weight-bold: 600;
+    --line-height-base: 1.5;
+
+    --spacing-small: 0.5em;;
+    --spacing-medium: 1em;
+    --spacing-large: 2em;
+
+    --theme-color-main: #F9E795;
+    --theme-color-primary: #F96167;
+    --theme-color-secondary: #f0e7c0;
+}

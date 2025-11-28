@@ -1,23 +1,30 @@
-import { createMemoryHistory, createRouter } from 'vue-router'
+import { createWebHistory, createRouter } from 'vue-router'
 
 import Home from '../views/sides/Home.vue'
-import About from '../views/sides/About.vue'
+import Blockchain from '../views/sides/Blockchain.vue'
+import SensorView from '../views/sides/SensorView.vue'
 
 const routes = [
     {
         path: '/',
         name: 'Home',
-        component: Home
+        component: Home,
+        alias: '/sensors'
     },
     {
-        path: '/about',
-        name: 'About',
-        component: About
+        path: '/sensors/:category/:id',
+        name: 'SensorsView',
+        component: SensorView
+    },
+    {
+        path: '/blockchain',
+        name: 'Blockchain',
+        component: Blockchain
     }
 ]
 
 const router = createRouter({
-    history: createMemoryHistory(),
+    history: createWebHistory(),
     routes
 })
 
