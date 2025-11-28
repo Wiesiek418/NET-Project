@@ -1,6 +1,6 @@
 @api_src_HostAddress = http://localhost:5000/api
 
-GET {{api_src_HostAddress}}/baking
+GET {{api_src_HostAddress}}/sensors?filter=type:eq:Conveyor&sort=sensorId:asc
 Accept: application/json
 
 ###
@@ -10,7 +10,7 @@ Accept: application/json
 
 ###
 
-GET {{api_src_HostAddress}}/wallet/balances?raw=true
+GET {{api_src_HostAddress}}/wallet/balances
 Accept: application/json
 
 ###
