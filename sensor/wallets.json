@@ -1,0 +1,82 @@
+[
+  {
+    "walletNumber": 1,
+    "address": "0x7F2837D7e2Ba4c2D74D6712D933092C40202735c",
+    "privateKey": "0x2def3c4f28906c9b2166fe809632fc2a2cf46b28f337a207ec548bcc571982bf"
+  },
+  {
+    "walletNumber": 2,
+    "address": "0x22c94363dBF8190764477dAaC009e0442A8027EE",
+    "privateKey": "0x5052820648d2d830c0d0a909ac6e5f2e9c3d127350adb7989e4f3de48dcd48c7"
+  },
+  {
+    "walletNumber": 3,
+    "address": "0x047f04E0eCC6aacC59372462E6c87cbc32dc7Fe2",
+    "privateKey": "0x075779e63ebda6b60da30703e7abc8fc11b9ba258556205febe1eddcfa1d86ca"
+  },
+  {
+    "walletNumber": 4,
+    "address": "0xA06252133ee87034640c4599010ceE577D19A691",
+    "privateKey": "0x566ce58020aa5491438b85070ca635385dd417e8389e3ec2c54b252339bab4af"
+  },
+  {
+    "walletNumber": 5,
+    "address": "0xFc61Cd8DD9d1986aD1dFf7747900B3c8A6bE6C2f",
+    "privateKey": "0x0c4b0e1ca3bc5bbe3f3c7a08b3429a7713430598f1abea20c0bd69742937d51d"
+  },
+  {
+    "walletNumber": 6,
+    "address": "0xda45F273836e632c72D2490E801761491FC10dd2",
+    "privateKey": "0xe0e74087c40c18d403339e35f2811439c0248e8f0ac0cd036bd087ae9fe49cd9"
+  },
+  {
+    "walletNumber": 7,
+    "address": "0xC3cd46f3d86E7a80D3D30BBd1bD5cB8154Dd3b5D",
+    "privateKey": "0x907d5f6204c4999f1961681a1c33e979bf68e675e623f024abc4970b756a57ad"
+  },
+  {
+    "walletNumber": 8,
+    "address": "0xCa32E1b7A07FFB9F7bb24eb81d21EFf8e9c653c3",
+    "privateKey": "0xf2fa44477bfbef0ef9034de64cca7a38a966f31ff21229803e1f23ff5d4b632e"
+  },
+  {
+    "walletNumber": 9,
+    "address": "0xc953B7ee01442376060bA8F234E42e3C8d22a2D2",
+    "privateKey": "0xabef6b03be86fc9d967880620322ebc805a1a8222dde0ee37d150fa961797fe1"
+  },
+  {
+    "walletNumber": 10,
+    "address": "0xC003E6c314858930c53038c1E5c064dEeC887Ed5",
+    "privateKey": "0xd70f8ddedb11866be46d780db852c1717e6be80b88257296b7e927be94e0fcd7"
+  },
+  {
+    "walletNumber": 11,
+    "address": "0x5b3FB988441cE7Dc9ea166BD5165a3749116F0c5",
+    "privateKey": "0x01971668599c12e010f397f1dac155ab92a795c9b9c967404561fd0531167204"
+  },
+  {
+    "walletNumber": 12,
+    "address": "0x958320D306D90369Cd53581aeDD567487D129a57",
+    "privateKey": "0x06587e96ad6185644df54959cabd857bd6d8391316cfaf3640bcbbbb7072a81c"
+  },
+  {
+    "walletNumber": 13,
+    "address": "0x1774Bf4DD673e77801a982fc643fc7191b1Be297",
+    "privateKey": "0x382a0907cba28ed6bdbc96c0fef2cd20ca13a826cd416b2ca28195a95c39a0e7"
+  },
+  {
+    "walletNumber": 14,
+    "address": "0xA6EBECC14953e72d4aD1E75c788d4fB3b73cF37C",
+    "privateKey": "0xe56c4adf5acc018ab3758466fbf9cf60243419c69a7552eef2bf3fdbbf2b9c6c"
+  },
+  {
+    "walletNumber": 15,
+    "address": "0x7CfF4cde24e5Ab3A7A941064924516812Ce34e6F",
+    "privateKey": "0xed49b6c5270540b4f12d279381dece41b069899927bd679d8f754c113645d9bd"
+  },
+  {
+    "walletNumber": 16,
+    "address": "0xeAf4B651a2b62C286dC96A908B070Ab2Ca4bDc37",
+    "privateKey": "0x0c356c526a67732890c28046cf1485c5dce09603230beb3223b296ac9cdfc461"
+  }
+]
