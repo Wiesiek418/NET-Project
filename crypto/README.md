@@ -9,3 +9,10 @@ The project includes native support for TypeScript, Hardhat scripts, tasks, and 
 ID kontraktu: 0x76a7854fB1f3bAd944F7aD88D5b9f749430f5613
 ABI tokenu w `abi.json`
 Endpoint i klucz admina w `.env`
+
+## Generating Wallets
+You can generate wallets using the following command:
+
+```bash
+npx hardhat run scripts/create-wallet.ts
+```

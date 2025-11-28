@@ -18,6 +18,7 @@ The arguments for each sensor are:
 - `--topic`: MQTT topic to publish to (default varies by sensor).
 - `--interval`: Publishing interval in seconds (default: 5).
 - `--randomness`: Randomness added to the interval (default: 1).
+- `--wallet`: Wallet address (default: None).
 
 ### Example
 
@@ -41,6 +42,7 @@ The arguments for the script are:
 - `--conveyor-belts`: Number of conveyor belt sensors (default: 1).
 - `--dough-mixers`: Number of dough mixer sensors (default: 1).
 - `--packing-lines`: Number of packing line sensors (default: 1).
+- `--wallets-file`: Path to a JSON file containing wallet addresses (default: wallets.json).
 
 ### Example
 

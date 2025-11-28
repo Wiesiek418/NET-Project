@@ -7,11 +7,12 @@ import paho.mqtt.client as mqtt
 from datetime import datetime
 
 class BaseSensor:
-    def __init__(self, sensor_id, broker_address, port, topic):
+    def __init__(self, sensor_id, broker_address, port, topic, wallet_address):
         self.sensor_id = sensor_id
         self.broker_address = broker_address
         self.port = port
         self.topic = topic
+        self.wallet_address = wallet_address
         self.name = f"{topic}-sensor-{sensor_id}"
         self.client = mqtt.Client(client_id = self.name)
         self.client.on_connect = self.on_connect
@@ -44,6 +45,7 @@ class BaseSensor:
             payload = {
                 "SensorId": self.sensor_id,
                 "Timestamp": datetime.now().isoformat(),
+                "WalletAddress": self.wallet_address,
                 **data
             }
             payload_json = json.dumps(payload)
@@ -61,9 +63,10 @@ def main(sensor_class, topic_suffix):
     parser.add_argument("--topic", type = str, default = topic_suffix, help = "MQTT topic")
     parser.add_argument("--interval", type = int, default = 5, help = "Publishing interval in seconds")
     parser.add_argument("--randomness", type = float, default = 1, help = "Randomness added to the interval")
+    parser.add_argument("--wallet", type = str, default = None, help = "Wallet address")
     args = parser.parse_args()
 
-    sensor = sensor_class(args.id, args.broker, args.port, args.topic)
+    sensor = sensor_class(args.id, args.broker, args.port, args.topic, args.wallet)
     try:
         sensor.run(args.interval, args.randomness)
     except KeyboardInterrupt:
