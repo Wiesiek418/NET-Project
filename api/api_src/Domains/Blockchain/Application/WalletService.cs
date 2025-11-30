@@ -124,7 +124,7 @@ public class WalletService
     {
         if (string.IsNullOrEmpty(receiverAddress))
             throw new ArgumentException("Receiver address cannot be null or empty.", nameof(receiverAddress));
-            
+        
         var web3 = _web3;
         var tokenContract = web3.Eth.GetContract(_abi, _settings.TokenAddress);
         var transferFunction = tokenContract.GetFunction("transfer");
@@ -137,12 +137,10 @@ public class WalletService
             null, 
             receiverAddress, 
             tokenAmount);
-            
-        var currentGasPrice = await web3.Eth.GasPrice.SendRequestAsync();
         
-        var bufferedGasPrice = currentGasPrice.Value * 120 / 100; // Increase by 20%
+        var currentGasPrice = await web3.Eth.GasPrice.SendRequestAsync();
+        var bufferedGasPrice = currentGasPrice.Value * 120 / 100; 
         var gasPrice = new HexBigInteger(bufferedGasPrice);
-
 
         var transactionInput = transferFunction.CreateTransactionInput(
             _appAccount.Address, 
@@ -153,10 +151,7 @@ public class WalletService
 
         transactionInput.Nonce = await _nonceService.GetNextNonceAsync(_appAccount.Address);
         transactionInput.GasPrice = gasPrice;
-        
-        transactionInput.MaxFeePerGas = null;
-        transactionInput.MaxPriorityFeePerGas = null;
-
+    
         var txHash = await _web3.Eth.TransactionManager.SendTransactionAsync(transactionInput);
 
         return txHash;
