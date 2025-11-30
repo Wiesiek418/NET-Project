@@ -4,7 +4,9 @@ using Domains.Blockchain.Infrastructure.Data;
 using Domains.Blockchain.Models;
 using Microsoft.Extensions.Options;
 using Nethereum.Web3;
-using System.Security.Cryptography;
+using Nethereum.Web3.Accounts;
+using Nethereum.RPC.Eth.DTOs; 
+using Nethereum.Hex.HexTypes;
 
 namespace Domains.Blockchain.Application;
 
@@ -20,20 +22,37 @@ public class WalletService
             ""name"": ""balanceOf"",
             ""outputs"": [{ ""name"": """", ""type"": ""uint256"" }],
             ""type"": ""function""
+        },
+        {
+            ""constant"": false,
+            ""inputs"": [
+                { ""name"": ""_to"", ""type"": ""address"" },
+                { ""name"": ""_value"", ""type"": ""uint256"" }
+            ],
+            ""name"": ""transfer"",
+            ""outputs"": [{ ""name"": """", ""type"": ""bool"" }],
+            ""type"": ""function""
         }
     ]";
+
+    private readonly Account _appAccount;
 
     private readonly BlockchainSettings _settings;
     private readonly WalletUnitOfWork _unitOfWork;
     private readonly Web3 _web3;
+    private readonly NonceService _nonceService;
 
     public WalletService(
         WalletUnitOfWork unitOfWork,
-        IOptions<BlockchainSettings> _settings)
+        IOptions<BlockchainSettings> _settings,
+        NonceService nonceService)
     {
         _unitOfWork = unitOfWork;
         this._settings = _settings.Value;
-        _web3 = new Web3(this._settings.RpcUrl);
+        _nonceService = nonceService;
+        
+        _appAccount = new Account(this._settings.AppWalletPrivateKey);
+        _web3 = new Web3(_appAccount, this._settings.RpcUrl);
     }
 
     public async Task<IEnumerable<WalletInfo>> GetAllWalletsAsync(CancellationToken ct = default)
@@ -99,5 +118,42 @@ public class WalletService
         }
 
         await _unitOfWork.SaveChangesAsync(ct);
+    }
+
+    public async Task<string> SendTokenAsync(string receiverAddress, CancellationToken ct = default)
+    {
+        if (string.IsNullOrEmpty(receiverAddress))
+            throw new ArgumentException("Receiver address cannot be null or empty.", nameof(receiverAddress));
+        
+        var web3 = _web3;
+        var tokenContract = web3.Eth.GetContract(_abi, _settings.TokenAddress);
+        var transferFunction = tokenContract.GetFunction("transfer");
+
+        var tokenAmount = new BigInteger(_settings.PaymentAmount * (decimal)Math.Pow(10, _settings.TokenDecimals));
+
+        var gasEstimate = await transferFunction.EstimateGasAsync(
+            _appAccount.Address, 
+            null, 
+            null, 
+            receiverAddress, 
+            tokenAmount);
+        
+        var currentGasPrice = await web3.Eth.GasPrice.SendRequestAsync();
+        var bufferedGasPrice = currentGasPrice.Value * 120 / 100; 
+        var gasPrice = new HexBigInteger(bufferedGasPrice);
+
+        var transactionInput = transferFunction.CreateTransactionInput(
+            _appAccount.Address, 
+            gasEstimate, 
+            null,
+            receiverAddress, 
+            tokenAmount);
+
+        transactionInput.Nonce = await _nonceService.GetNextNonceAsync(_appAccount.Address);
+        transactionInput.GasPrice = gasPrice;
+    
+        var txHash = await _web3.Eth.TransactionManager.SendTransactionAsync(transactionInput);
+
+        return txHash;
     }
 }

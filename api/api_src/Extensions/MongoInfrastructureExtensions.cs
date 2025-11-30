@@ -49,6 +49,7 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<WalletMongoContext>();
         builder.Services.AddScoped<WalletUnitOfWork>(sp =>
             new WalletUnitOfWork(sp.GetRequiredService<WalletMongoContext>()));
+        builder.Services.AddSingleton<NonceService>();
         builder.Services.AddScoped<WalletService>();
 
         return builder;

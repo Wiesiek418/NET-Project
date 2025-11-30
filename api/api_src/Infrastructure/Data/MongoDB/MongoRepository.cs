@@ -56,7 +56,6 @@ public class MongoRepository<T> : IRepository<T> where T : class
 
         var filter = Builders<T>.Filter.Eq("_id", new ObjectId(id));
         var result = await _collection.ReplaceOneAsync(filter, entity, cancellationToken: ct);
-
     }
 
     public virtual async Task DeleteAsync(string id, CancellationToken ct = default)
@@ -100,7 +99,7 @@ public class MongoRepository<T> : IRepository<T> where T : class
             var op = parts[1].ToLowerInvariant();
             var value = parts[2];
 
-            bool isNumber = double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var numericValue);
+            var isNumber = double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var numericValue);
 
             switch (op)
             {

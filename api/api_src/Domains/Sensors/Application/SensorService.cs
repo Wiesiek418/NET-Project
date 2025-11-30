@@ -1,6 +1,6 @@
+using Domains.Blockchain.Application;
 using Domains.Sensors.Infrastructure.Data;
 using Domains.Sensors.Models;
-using Domains.Blockchain.Application;
 using Extensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -19,9 +19,9 @@ public class SensorService
     private readonly WalletService _walletService;
 
     public SensorService(
-        SensorsUnitOfWork unitOfWork, 
+        SensorsUnitOfWork unitOfWork,
         SensorsMongoContext context,
-        WalletService walletService) 
+        WalletService walletService)
     {
         _unitOfWork = unitOfWork;
         _context = context;
@@ -49,9 +49,14 @@ public class SensorService
     {
         var repository = _unitOfWork.GetRepository<ConveyorBeltReading>();
         await repository.CreateAsync(reading, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+
+        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId, "Conveyor", reading.WalletAddress, ct);
+        if (!string.IsNullOrEmpty(reading.WalletAddress))
+        {
+            await _walletService.SendTokenAsync(reading.WalletAddress, ct);
+        }
         
-        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId,"Conveyor", reading.WalletAddress, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
     }
 
     #endregion
@@ -77,9 +82,14 @@ public class SensorService
     {
         var repository = _unitOfWork.GetRepository<BakingFurnaceReading>();
         await repository.CreateAsync(reading, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+
+        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId, "Baking", reading.WalletAddress, ct);
+        if (!string.IsNullOrEmpty(reading.WalletAddress))
+        {
+            await _walletService.SendTokenAsync(reading.WalletAddress, ct);
+        }
         
-        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId,"Baking", reading.WalletAddress, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
     }
 
     #endregion
@@ -105,9 +115,14 @@ public class SensorService
     {
         var repository = _unitOfWork.GetRepository<DoughMixerReading>();
         await repository.CreateAsync(reading, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+
+        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId, "Dough", reading.WalletAddress, ct);
+        if (!string.IsNullOrEmpty(reading.WalletAddress))
+        {
+            await _walletService.SendTokenAsync(reading.WalletAddress, ct);
+        }
         
-        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId,"Dough", reading.WalletAddress, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
     }
 
     #endregion
@@ -133,9 +148,14 @@ public class SensorService
     {
         var repository = _unitOfWork.GetRepository<PackingLineReading>();
         await repository.CreateAsync(reading, ct);
-        await _unitOfWork.SaveChangesAsync(ct);
+
+        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId, "Packing", reading.WalletAddress, ct);
+        if (!string.IsNullOrEmpty(reading.WalletAddress))
+        {
+            await _walletService.SendTokenAsync(reading.WalletAddress, ct);
+        }
         
-        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId,"Packing", reading.WalletAddress, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
     }
 
     #endregion
