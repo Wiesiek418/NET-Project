@@ -51,9 +51,11 @@ public class MqttListenerService : BackgroundService
             {
                 var msg = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
 
-                await _queue.Queue.Writer.WriteAsync(
-                    (e.ApplicationMessage.Topic, msg),
-                    stoppingToken);
+                await _queue.EnqueueAsync(new MqttQueueMessage
+                    {
+                        Topic = e.ApplicationMessage.Topic,
+                        Payload = msg
+                    }, stoppingToken);
             }
             catch (DecoderFallbackException ex)
             {

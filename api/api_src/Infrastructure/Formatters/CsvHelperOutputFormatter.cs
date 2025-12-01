@@ -5,6 +5,8 @@ using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Net.Http.Headers;
 
+namespace Infrastructure.Formatters.Csv;
+
 public class CsvHelperOutputFormatter : TextOutputFormatter
 {
     public CsvHelperOutputFormatter()

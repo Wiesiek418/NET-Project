@@ -1,48 +1,32 @@
+import * as signalR from '@microsoft/signalr';
+
 class WebSocket{
     constructor(){
-        this.socket = null;
+        this.connection = null;
         this.listeners = new Map();
     }
 
-    connect(url){
-        if(this.socket){
+    async connect(url){
+        if(this.connection){
             console.warn('WebSocket is already connected');
             return;
         }
 
-        this.socket = new WebSocket(url);
+        this.connection = new signalR.HubConnectionBuilder()
+            .withUrl(url) // backend hub endpoint
+            .withAutomaticReconnect()
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
 
-        this.socket.onopen = () => {
-            console.log('WebSocket connection established');
-        };
+        this.connection.on('NewReading', (message) => {
+            this.listeners.forEach((callback) => callback(message));
+        });
 
-        this.socket.onmessage = (event) => {
-            let data;
-            try{
-                data = JSON.parse(event.data);
-            }
-            catch{
-                data = event.data;
-            }
-
-            this.listeners.forEach((callback) => callback(data));
-            console.log('Message received:', event.data);
-        };
-
-        this.socket.onclose = () => {
-            console.log('WebSocket connection closed');
-        };
-
-        this.socket.onerror = (error) => {
-            console.error('WebSocket error:', error);
-        };
-    }
-
-    sendMessage(message){
-        if(this.socket && this.socket.readyState === WebSocket.OPEN){
-            this.socket.send(JSON.stringify(message));
-        } else {
-            console.error('WebSocket is not open. Unable to send message.');
+        try {
+            await this.connection.start();
+            console.log('SignalR connected.');
+        } catch (err) {
+            console.error('SignalR connection failed: ', err);
         }
     }
 

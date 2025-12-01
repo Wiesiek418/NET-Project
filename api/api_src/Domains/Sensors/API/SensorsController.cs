@@ -15,7 +15,7 @@ public class SensorsController : ControllerBase
         _sensorService = sensorService;
     }
 
-    // GET /api/sensors?filter=type:eq:Conveyor&sort=sensorId:asc
+    // GET /api/sensors - Summary of all sensors
     [HttpGet]
     public async Task<IEnumerable<SensorSummary>> GetAll(
         [FromQuery] string? filter,
@@ -23,5 +23,45 @@ public class SensorsController : ControllerBase
         CancellationToken ct)
     {
         return await _sensorService.GetAllSensorsSummaryAsync(filter, sort, ct);
+    }
+
+    // GET /api/sensors/conveyor - All conveyor readings
+    [HttpGet("conveyor")]
+    public async Task<IEnumerable<ConveyorBeltReading>> GetConveyor(
+        [FromQuery] string? filter,
+        [FromQuery] string? sort,
+        CancellationToken ct)
+    {
+        return await _sensorService.GetReadingsAsync<ConveyorBeltReading>(filter, sort, ct);
+    }
+
+    // GET /api/sensors/baking - All baking readings
+    [HttpGet("baking")]
+    public async Task<IEnumerable<BakingFurnaceReading>> GetBaking(
+        [FromQuery] string? filter,
+        [FromQuery] string? sort,
+        CancellationToken ct)
+    {
+        return await _sensorService.GetReadingsAsync<BakingFurnaceReading>(filter, sort, ct);
+    }
+
+    // GET /api/sensors/dough - All dough readings
+    [HttpGet("dough")]
+    public async Task<IEnumerable<DoughMixerReading>> GetDough(
+        [FromQuery] string? filter,
+        [FromQuery] string? sort,
+        CancellationToken ct)
+    {
+        return await _sensorService.GetReadingsAsync<DoughMixerReading>(filter, sort, ct);
+    }
+
+    // GET /api/sensors/packing - All packing readings
+    [HttpGet("packing")]
+    public async Task<IEnumerable<PackingLineReading>> GetPacking(
+        [FromQuery] string? filter,
+        [FromQuery] string? sort,
+        CancellationToken ct)
+    {
+        return await _sensorService.GetReadingsAsync<PackingLineReading>(filter, sort, ct);
     }
 }
