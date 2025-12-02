@@ -51,6 +51,10 @@ public class SensorService
         await _unitOfWork.SaveChangesAsync(ct);
         
         await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId, typeof(SensorType).Name, reading.WalletAddress, ct);
+        if (!string.IsNullOrEmpty(reading.WalletAddress))
+        {
+            await _walletService.SendTokenAsync(reading.WalletAddress, ct);
+        }
     }
 
     #region Global Sensor Operations
