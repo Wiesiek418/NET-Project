@@ -11,6 +11,7 @@ public class NonceService
 {
     private readonly Web3 _web3;
     private BigInteger? _currentNonce;
+    // We use a lock to ensure only one thread calculates the nonce at a time
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
     public NonceService(IOptions<BlockchainSettings> settings)
@@ -23,8 +24,10 @@ public class NonceService
         await _semaphore.WaitAsync();
         try
         {
+            // If we don't have a nonce yet, or we were told to reset, fetch from chain
             if (!_currentNonce.HasValue)
             {
+                // IMPORTANT: Use BlockParameter.CreatePending() to account for txs in the mempool
                 var nonce = await _web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(address, BlockParameter.CreatePending());
                 _currentNonce = nonce.Value;
             }
@@ -41,8 +44,20 @@ public class NonceService
         }
     }
 
-    public void Reset()
+    /// <summary>
+    /// Call this when the blockchain rejects our nonce (e.g. "Nonce too low")
+    /// to force a refresh from the network on the next call.
+    /// </summary>
+    public async Task ResetAsync()
     {
-        _currentNonce = null;
+        await _semaphore.WaitAsync();
+        try
+        {
+            _currentNonce = null;
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 }

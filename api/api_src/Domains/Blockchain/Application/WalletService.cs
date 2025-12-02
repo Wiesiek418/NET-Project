@@ -3,10 +3,10 @@ using Domains.Blockchain.Infrastructure;
 using Domains.Blockchain.Infrastructure.Data;
 using Domains.Blockchain.Models;
 using Microsoft.Extensions.Options;
+using Nethereum.Hex.HexTypes;
+using Nethereum.JsonRpc.Client;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
-using Nethereum.RPC.Eth.DTOs; 
-using Nethereum.Hex.HexTypes;
 
 namespace Domains.Blockchain.Application;
 
@@ -36,11 +36,11 @@ public class WalletService
     ]";
 
     private readonly Account _appAccount;
+    private readonly NonceService _nonceService;
 
     private readonly BlockchainSettings _settings;
     private readonly WalletUnitOfWork _unitOfWork;
     private readonly Web3 _web3;
-    private readonly NonceService _nonceService;
 
     public WalletService(
         WalletUnitOfWork unitOfWork,
@@ -50,7 +50,7 @@ public class WalletService
         _unitOfWork = unitOfWork;
         this._settings = _settings.Value;
         _nonceService = nonceService;
-        
+
         _appAccount = new Account(this._settings.AppWalletPrivateKey);
         _web3 = new Web3(_appAccount, this._settings.RpcUrl);
     }
@@ -61,13 +61,16 @@ public class WalletService
         return await repository.GetAllAsync(ct);
     }
 
-    public async Task<IEnumerable<WalletBalance>> GetBalancesAsync(bool raw = false, CancellationToken ct = default)
+    public async Task<IEnumerable<WalletBalance>> GetBalancesAsync(
+        bool raw = false,
+        CancellationToken ct = default)
     {
-        var wallets = await GetAllWalletsAsync(ct);
+        var batchSize = 50;
+        var wallets = (await GetAllWalletsAsync(ct)).ToList();
         var contract = _web3.Eth.GetContract(_abi, _settings.TokenAddress);
         var balanceOf = contract.GetFunction("balanceOf");
 
-        Console.WriteLine($"Fetching balances for {wallets.Count()} wallets.");
+        Console.WriteLine($"Fetching balances for {wallets.Count} wallets (batch size {batchSize}).");
 
         // For testing purposes, if no wallets are found, use a default one
         if (!wallets.Any())
@@ -76,21 +79,49 @@ public class WalletService
                 new() { Id = "1", Address = "0xe3587046989c92D55bA245E6DC941EE47C479a92", SensorType = "SensorA" }
             };
 
-        var res = wallets.Select(async w =>
+        var walletList = wallets;
+        var resultArray = new WalletBalance[walletList.Count];
+
+        for (var i = 0; i < walletList.Count; i += batchSize)
         {
-            var rawValue = await balanceOf.CallAsync<BigInteger>(w.Address);
-            var balance = raw ? (double)rawValue : (double)rawValue / Math.Pow(10, _settings.TokenDecimals);
+            ct.ThrowIfCancellationRequested();
 
-            return new WalletBalance
+            var batch = walletList
+                .Skip(i)
+                .Take(batchSize)
+                .Select((w, idx) => new { Wallet = w, Index = i + idx })
+                .ToList();
+
+            var tasks = batch.Select(async item =>
             {
-                Id = w.Id,
-                SensorId = w.SensorId,
-                SensorType = w.SensorType,
-                Balance = balance
-            };
-        });
+                while (true)
+                    try
+                    {
+                        var rawValue = await balanceOf.CallAsync<BigInteger>(item.Wallet.Address).ConfigureAwait(false);
+                        var balance = raw
+                            ? (double)rawValue
+                            : (double)rawValue / Math.Pow(10, _settings.TokenDecimals);
 
-        return await Task.WhenAll(res);
+                        resultArray[item.Index] = new WalletBalance
+                        {
+                            Id = item.Wallet.Id,
+                            SensorId = item.Wallet.SensorId,
+                            SensorType = item.Wallet.SensorType,
+                            Balance = balance
+                        };
+                        return;
+                    }
+                    catch (Exception ex) when (ex is RpcClientUnknownException || ex is RpcResponseException)
+                    {
+                        Console.WriteLine("Error while downloading balance. Retrying...");
+                        await Task.Delay(500, ct);
+                    }
+            });
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+        }
+
+        return resultArray;
     }
 
     public async Task RegisterOrUpdateSensorAsync(int sensorId, string sensorType, string? walletAddress,
@@ -124,37 +155,47 @@ public class WalletService
 
     public async Task<string> SendTokenAsync(string receiverAddress, CancellationToken ct = default)
     {
-        if (string.IsNullOrEmpty(receiverAddress))
-            throw new ArgumentException("Receiver address cannot be null or empty.", nameof(receiverAddress));
-        
-        var web3 = _web3;
-        var tokenContract = web3.Eth.GetContract(_abi, _settings.TokenAddress);
-        var transferFunction = tokenContract.GetFunction("transfer");
+        while (true)
+            try
+            {
+                return await SendTokenInternalAsync(receiverAddress, ct);
+            }
+            catch (Exception ex) when (ex is RpcClientUnknownException || ex is RpcResponseException)
+            {
+                await _nonceService.ResetAsync();
+                Console.WriteLine("Blockchain provider error - trying again in two seconds \n\n");
+                await Task.Delay(2000, ct);
+            }
+    }
 
+    private async Task<string> SendTokenInternalAsync(string receiverAddress, CancellationToken ct)
+    {
+        if (string.IsNullOrEmpty(receiverAddress)) throw new ArgumentException("Address empty");
+
+        var contract = _web3.Eth.GetContract(_abi, _settings.TokenAddress);
+        var transferFunction = contract.GetFunction("transfer");
         var tokenAmount = new BigInteger(_settings.PaymentAmount * (decimal)Math.Pow(10, _settings.TokenDecimals));
 
-        var gasEstimate = await transferFunction.EstimateGasAsync(
-            _appAccount.Address, 
-            null, 
-            null, 
-            receiverAddress, 
-            tokenAmount);
-        
-        var currentGasPrice = await web3.Eth.GasPrice.SendRequestAsync();
-        var bufferedGasPrice = currentGasPrice.Value * 120 / 100; 
-        var gasPrice = new HexBigInteger(bufferedGasPrice);
+        var gasLimit = new HexBigInteger(100000);
+
+        var currentGasPrice = await _web3.Eth.GasPrice.SendRequestAsync();
+        var gasPrice = new HexBigInteger(currentGasPrice.Value * 120 / 100);
 
         var transactionInput = transferFunction.CreateTransactionInput(
-            _appAccount.Address, 
-            gasEstimate, 
+            _appAccount.Address,
+            gasLimit,
             null,
-            receiverAddress, 
+            receiverAddress,
             tokenAmount);
 
         transactionInput.Nonce = await _nonceService.GetNextNonceAsync(_appAccount.Address);
         transactionInput.GasPrice = gasPrice;
-    
+
+        await Task.Delay(500, ct);
+
+        Console.WriteLine("\n\nSEND");
         var txHash = await _web3.Eth.TransactionManager.SendTransactionAsync(transactionInput);
+        Console.WriteLine("SUCCESS\n\n");
 
         return txHash;
     }
