@@ -4,7 +4,7 @@ import { convertFilters, convertSort } from '../script/filterSortConverter.js';
 
 class CategoryService {
     async getCategory(category, filter, sort) {
-        let url = `/${category}?`;
+        let url = `/sensors/${category}?`;
         if (filter) {
             url += `filter=${convertFilters(filter)}&`;
         }
@@ -28,7 +28,7 @@ class CategoryService {
     }
 
     async getSensorById(category, sensorId) {
-        let url = `/${category}?`;
+        let url = `/sensors/${category}?`;
         const filter = { Id: `=${sensorId}` };
         url += `filter=${convertFilters(filter)}`;
 
@@ -37,7 +37,7 @@ class CategoryService {
     }
 
     async downloadCategory(category, filter, sort, filename, format='json') {
-        let url = `/${category}?`;
+        let url = `/sensors/${category}?`;
         if (filter) {
             url += `filter=${convertFilters(filter)}&`;
         }

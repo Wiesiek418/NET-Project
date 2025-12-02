@@ -4,29 +4,40 @@ public class MqttProcessingService : BackgroundService
 {
     private readonly ILogger<MqttProcessingService> _logger;
     private readonly MqttWorkQueue _queue;
-    private readonly MqttMessageRouter _router;
+    private readonly IServiceProvider _sp;
+    private readonly int _batchSize = 10;
 
     public MqttProcessingService(
         MqttWorkQueue queue,
-        MqttMessageRouter router,
-        ILogger<MqttProcessingService> logger)
+        IServiceProvider sp,
+        ILogger<MqttProcessingService> logger,
+        int batchSize = 10)
     {
         _queue = queue;
-        _router = router;
+        _sp = sp;
         _logger = logger;
+        _batchSize = batchSize;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await foreach (var (topic, payload) in
-                       _queue.Queue.Reader.ReadAllAsync(stoppingToken))
-            try
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            var batch = await _queue.DequeueBatchAsync(_batchSize, stoppingToken);
+
+            using var scope = _sp.CreateScope(); // <-- create a scope per message
+            var dispatcher = scope.ServiceProvider.GetRequiredService<MqttDispatcher>();
+
+            foreach (var message in batch)
             {
-                await _router.RouteMessageAsync(topic, payload, stoppingToken);
+                try {
+                    await dispatcher.DispatchAsync(message.Topic, message.Payload, stoppingToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error processing MQTT message on topic {Topic}", message.Topic);
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing MQTT message");
-            }
+        }
     }
 }

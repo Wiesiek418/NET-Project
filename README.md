@@ -8,7 +8,7 @@
 
 All known wallets
 ```http
-GET GET /api/wallet
+GET /api/wallet
 ```
 results in
 ```json
@@ -38,6 +38,11 @@ results in
 ```
 > Test data in: \api\api_src\Domains\Blockchain\Application\WalletService.cs:50
 
+### WebSocket Notifications
+SignalR WebSocket endpoint
+```
+/api/notifications
+```
 
 ## Development
 

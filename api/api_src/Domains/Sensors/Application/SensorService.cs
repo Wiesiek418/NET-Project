@@ -28,137 +28,34 @@ public class SensorService
         _walletService = walletService;
     }
 
-    #region Conveyor Belt Readings
-
-    public async Task<IEnumerable<ConveyorBeltReading>> GetAllConveyorReadingsAsync(
+    public async Task<IEnumerable<SensorType>> GetReadingsAsync<SensorType>(
         string? filter = null,
         string? sort = null,
         CancellationToken ct = default)
+        where SensorType : SensorReading
     {
-        var repository = _unitOfWork.GetRepository<ConveyorBeltReading>();
+        var repository = _unitOfWork.GetRepository<SensorType>();
         return await repository.GetAllAsync(filter, sort, ct);
     }
 
-    public async Task<ConveyorBeltReading?> GetConveyorReadingByIdAsync(string id, CancellationToken ct = default)
+    public async Task<SensorType?> GetReadingByIdAsync<SensorType>(string id, CancellationToken ct = default) where SensorType : SensorReading
     {
-        var repository = _unitOfWork.GetRepository<ConveyorBeltReading>();
+        var repository = _unitOfWork.GetRepository<SensorType>();
         return await repository.GetByIdAsync(id, ct);
     }
 
-    public async Task SaveConveyorReadingAsync(ConveyorBeltReading reading, CancellationToken ct = default)
+    public async Task SaveReadingAsync<SensorType>(SensorType reading, CancellationToken ct = default) where SensorType : SensorReading
     {
-        var repository = _unitOfWork.GetRepository<ConveyorBeltReading>();
+        var repository = _unitOfWork.GetRepository<SensorType>();
         await repository.CreateAsync(reading, ct);
-
-        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId, "Conveyor", reading.WalletAddress, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
+        
+        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId, typeof(SensorType).Name, reading.WalletAddress, ct);
         if (!string.IsNullOrEmpty(reading.WalletAddress))
         {
             await _walletService.SendTokenAsync(reading.WalletAddress, ct);
         }
-        
-        await _unitOfWork.SaveChangesAsync(ct);
     }
-
-    #endregion
-
-    #region Baking Furnace Readings
-
-    public async Task<IEnumerable<BakingFurnaceReading>> GetAllBakingReadingsAsync(
-        string? filter = null,
-        string? sort = null,
-        CancellationToken ct = default)
-    {
-        var repository = _unitOfWork.GetRepository<BakingFurnaceReading>();
-        return await repository.GetAllAsync(filter, sort, ct);
-    }
-
-    public async Task<BakingFurnaceReading?> GetBakingReadingByIdAsync(string id, CancellationToken ct = default)
-    {
-        var repository = _unitOfWork.GetRepository<BakingFurnaceReading>();
-        return await repository.GetByIdAsync(id, ct);
-    }
-
-    public async Task SaveBakingReadingAsync(BakingFurnaceReading reading, CancellationToken ct = default)
-    {
-        var repository = _unitOfWork.GetRepository<BakingFurnaceReading>();
-        await repository.CreateAsync(reading, ct);
-
-        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId, "Baking", reading.WalletAddress, ct);
-        if (!string.IsNullOrEmpty(reading.WalletAddress))
-        {
-            await _walletService.SendTokenAsync(reading.WalletAddress, ct);
-        }
-        
-        await _unitOfWork.SaveChangesAsync(ct);
-    }
-
-    #endregion
-
-    #region Dough Mixer Readings
-
-    public async Task<IEnumerable<DoughMixerReading>> GetAllDoughReadingsAsync(
-        string? filter = null,
-        string? sort = null,
-        CancellationToken ct = default)
-    {
-        var repository = _unitOfWork.GetRepository<DoughMixerReading>();
-        return await repository.GetAllAsync(filter, sort, ct);
-    }
-
-    public async Task<DoughMixerReading?> GetDoughReadingByIdAsync(string id, CancellationToken ct = default)
-    {
-        var repository = _unitOfWork.GetRepository<DoughMixerReading>();
-        return await repository.GetByIdAsync(id, ct);
-    }
-
-    public async Task SaveDoughReadingAsync(DoughMixerReading reading, CancellationToken ct = default)
-    {
-        var repository = _unitOfWork.GetRepository<DoughMixerReading>();
-        await repository.CreateAsync(reading, ct);
-
-        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId, "Dough", reading.WalletAddress, ct);
-        if (!string.IsNullOrEmpty(reading.WalletAddress))
-        {
-            await _walletService.SendTokenAsync(reading.WalletAddress, ct);
-        }
-        
-        await _unitOfWork.SaveChangesAsync(ct);
-    }
-
-    #endregion
-
-    #region Packing Line Readings
-
-    public async Task<IEnumerable<PackingLineReading>> GetAllPackingReadingsAsync(
-        string? filter = null,
-        string? sort = null,
-        CancellationToken ct = default)
-    {
-        var repository = _unitOfWork.GetRepository<PackingLineReading>();
-        return await repository.GetAllAsync(filter, sort, ct);
-    }
-
-    public async Task<PackingLineReading?> GetPackingReadingByIdAsync(string id, CancellationToken ct = default)
-    {
-        var repository = _unitOfWork.GetRepository<PackingLineReading>();
-        return await repository.GetByIdAsync(id, ct);
-    }
-
-    public async Task SavePackingReadingAsync(PackingLineReading reading, CancellationToken ct = default)
-    {
-        var repository = _unitOfWork.GetRepository<PackingLineReading>();
-        await repository.CreateAsync(reading, ct);
-
-        await _walletService.RegisterOrUpdateSensorAsync(reading.SensorId, "Packing", reading.WalletAddress, ct);
-        if (!string.IsNullOrEmpty(reading.WalletAddress))
-        {
-            await _walletService.SendTokenAsync(reading.WalletAddress, ct);
-        }
-        
-        await _unitOfWork.SaveChangesAsync(ct);
-    }
-
-    #endregion
 
     #region Global Sensor Operations
 

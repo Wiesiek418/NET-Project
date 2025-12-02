@@ -82,4 +82,5 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - mqtt
+      - api
     command: python run_all.py --broker mqtt --baking-furnaces 2 --conveyor-belts 1 --dough-mixers 1 --packing-lines 1

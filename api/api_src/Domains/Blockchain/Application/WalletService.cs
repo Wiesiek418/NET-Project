@@ -67,6 +67,8 @@ public class WalletService
         var contract = _web3.Eth.GetContract(_abi, _settings.TokenAddress);
         var balanceOf = contract.GetFunction("balanceOf");
 
+        Console.WriteLine($"Fetching balances for {wallets.Count()} wallets.");
+
         // For testing purposes, if no wallets are found, use a default one
         if (!wallets.Any())
             wallets = new List<WalletInfo>

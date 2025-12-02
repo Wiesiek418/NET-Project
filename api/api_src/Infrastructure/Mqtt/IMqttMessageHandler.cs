@@ -1,7 +1,7 @@
 namespace Infrastructure.Mqtt;
 
-public interface IMqttMessageHandler
+public interface IMqttMessageHandler<TMessage>
+    where TMessage : class
 {
-    string TopicFilter { get; } // could be a full topic or wildcard pattern
-    Task HandleMessageAsync(string payload, CancellationToken ct);
+    Task HandleAsync(TMessage payload, CancellationToken ct);
 }
