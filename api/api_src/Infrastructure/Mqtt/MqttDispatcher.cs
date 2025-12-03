@@ -1,4 +1,6 @@
 using System.Text.Json;
+using Infrastructure.SignalR;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Infrastructure.Mqtt;
 
@@ -8,15 +10,18 @@ public class MqttDispatcher
     private readonly IServiceProvider _sp;
     private readonly JsonSerializerOptions _json;
     private readonly ILogger<MqttDispatcher> _logger;
+    private readonly IHubContext<NotificationHub> _hub;
 
     public MqttDispatcher(
         ITopicTypeRegistry registry, 
         IServiceProvider sp,
-        ILogger<MqttDispatcher> logger)
+        ILogger<MqttDispatcher> logger,
+        IHubContext<NotificationHub> hub)
     {
         _registry = registry;
         _sp = sp;
         _logger = logger;
+        _hub = hub;
         _json = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
     }
 
@@ -44,5 +49,8 @@ public class MqttDispatcher
 
         // 4. invoke strongly typed handler
         await handler.HandleAsync((dynamic)message, ct);
+
+        // 5. broadcast to WebSocket clients
+        await _hub.Clients.All.SendAsync("NewReading", payload, ct);
     }
 }
