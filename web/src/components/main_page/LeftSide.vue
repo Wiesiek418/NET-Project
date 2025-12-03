@@ -34,6 +34,7 @@ export default {
             menuItems: [
                 { name: 'Sensors', icon: '🏠', to: '/' },
                 { name: 'Blockchain', icon: '👤', to: '/blockchain' },
+                { name: 'Dashboard', icon: '💻', to: '/dashboard' },
             ]
         };
     }

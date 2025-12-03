@@ -36,6 +36,17 @@ class CategoryService {
         return response;
     }
 
+    async getSensorAllData(category, sensorId) {
+        let url = `/${category}?`;
+        const filter = { SensorId: `=${sensorId}` };
+        const sort = { field: 'Timestamp', direction: 'desc' };
+        url += `filter=${convertFilters(filter)}&`;
+        url += `sort=${convertSort(sort)}`;
+        
+        const response =  await ApiService.get(url);
+        return response;
+    }
+
     async downloadCategory(category, filter, sort, filename, format='json') {
         let url = `/sensors/${category}?`;
         if (filter) {

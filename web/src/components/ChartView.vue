@@ -21,7 +21,7 @@ import {
   CategoryScale,
   LinearScale
 } from "chart.js";
-import { Bar, Pie } from "vue-chartjs";
+import { Bar, Pie, Line} from "vue-chartjs";
 
 ChartJS.register(
   Title,
@@ -35,7 +35,7 @@ ChartJS.register(
 
 export default {
     name: 'ChartView',
-    components: { Bar, Pie },
+    components: { Bar, Pie, Line },
     props: {
         data: {
             type: Object,
@@ -49,13 +49,13 @@ export default {
         type: {
             type: String,
             required: false,
-            default: 'bar',
-            validator: value => ['bar', 'pie'].includes(value)
+            default: 'Bar',
+            validator: value => ['Bar', 'Pie', 'Line'].includes(value)
         }
     },
     computed: {
         chartComponent() {
-            return this.type === 'pie' ? 'Pie' : 'Bar';
+            return this.type;
         },
         chartData() {
             return this.data;

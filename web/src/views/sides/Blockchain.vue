@@ -40,7 +40,7 @@ export default {
   },
   methods:{
     async fetchData(){
-        this.data = await WalletService.getWallets();
+        this.data = await WalletService.getBalances();
     },
   }
 };
