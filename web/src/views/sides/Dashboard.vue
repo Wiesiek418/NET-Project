@@ -8,33 +8,36 @@
               class="dashboard-element"
               v-for="sensor in sensors"
             >
-              <div class="dashboard-element-header">
-                <h2>{{ sensor.sensorType }} - {{ sensor.sensorId }}</h2>
-              </div>
-              <div class="dashboard-element-body">
-                <div class="dashboard-element-values">
-                  <h3>Values</h3>
-                  <div
-                    class="dashboard-element-avg"
-                    v-for="(value, key) in sensor.avg"
-                    :key="key"
-                  >
-                    {{ key }} {{ sensor.values[0][key] }} AVG: {{ value }}
-                  </div>
+              <div v-if="sensor.values">
+                <div class="dashboard-element-header">
+                  <h2>{{ sensor.sensorType }} - {{ sensor.sensorId }}</h2>
                 </div>
-                <div 
-                  class="dashboard-element-charts"
-                  v-for="(value, key) in sensor.avg"
-                  :key="value"
-                >
-                  <h3>{{ key }}</h3>
-                  <ChartView
-                    v-if="sensor.values.length>0"
-                    type="Bar"
-                    :data="setChartData(sensor, key)"
-                    :options="chartOptions"
+                <div class="dashboard-element-body">
+                  <div class="dashboard-element-values">
+                    <h3>Values</h3>
+                    <p>Last update: {{ parseDateTime(sensor.values[0]?.Timestamp || sensor.values[0]?.timestamp) }}</p>
+                    <div
+                      class="dashboard-element-avg"
+                      v-for="(value, key) in sensor.avg"
+                      :key="key"
+                    >
+                      {{ key }} {{ sensor.values[0][key] }} AVG: {{ value }}
+                    </div>
+                  </div>
+                  <div 
+                    class="dashboard-element-charts"
+                    v-for="(value, key) in sensor.avg"
+                    :key="value"
                   >
-                  </ChartView>
+                    <h3>{{ key }}</h3>
+                    <ChartView
+                      v-if="sensor.values.length>0"
+                      type="Bar"
+                      :data="setChartData(sensor, key)"
+                      :options="chartOptions"
+                    >
+                    </ChartView>
+                  </div>
                 </div>
               </div>
             </div>
@@ -50,6 +53,7 @@ import WalletService from '@/services/wallet.js';
 import CategoryService from '@/services/category.js';
 import { useSensorsStore } from '@/stores/sensors.js';
 import ChartView from "../../components/ChartView.vue";
+import webSocket from "@/services/webSocket";
 
 export default {
   name: 'Dashboard',
@@ -76,20 +80,32 @@ export default {
                 "BearingTemp", "Speed"
             ],
         },
+        convertCategory: ["Baking", "Packing", "Dough", "Conveyor"],
         sensorsValues: {},
         chartOptions: {
             responsive: true,
             maintainAspectRatio: false
         },
+        unsubscribeSocket: null
     };
   },
   created(){
     this.sensorsStore = useSensorsStore();
   },
-  mounted(){
+  async mounted(){
     this.fetchData();
+    await webSocket.connect("/notifications");
+    this.unsubscribeSocket = webSocket.subscribe(this.websocketListener);
+  },
+  unmounted(){
+    if(this.unsubscribeSocket){
+      this.unsubscribeSocket();
+    }
   },
   methods:{
+    websocketListener(message){
+      this.pushNewValue(message);
+    },
     async fetchData(){
       const data = await WalletService.getWallets();
 
@@ -101,11 +117,13 @@ export default {
       });
       
       for (const sensor of this.sensors) {
-          let sensorData = await CategoryService.getSensorAllData(sensor.sensorType, sensor.sensorId);
+          const category = this.convertCategory.find(cat => sensor.sensorType.includes(cat));
+          let sensorData = await CategoryService.getSensorAllData(category, sensor.sensorId);
           if(!Array.isArray(sensorData)){
               sensorData = Object.values(sensorData);
           }
-          sensor.values = sensorData.slice(0,this.numberOfElements);
+          sensor.sensorType = category;
+          sensor.values = sensorData.slice(0,this.numberOfElements).reverse();
           sensor.avg = this.avgList(sensor);
       }
     },
@@ -146,8 +164,8 @@ export default {
       }
       return chunks;
     },
-    pushNewValue(sensorId, newValue){
-      const sensor = this.sensors.find(s => s.sensorId === sensorId);
+    pushNewValue(newValue){
+      const sensor = this.sensors.find(s => s.sensorId === newValue.sensorId);
       if(sensor){
           sensor.values.push(newValue);
           if(sensor.values.length > this.numberOfElements){
@@ -156,6 +174,11 @@ export default {
           sensor.avg = this.avgList(sensor);
       }
     },
+    parseDateTime(dateTime){
+      const cleaned = dateTime.replace(/\.(\d{3})\d+/, '.$1'); 
+      const date = new Date(cleaned);
+      return date.toLocaleString();
+    }
   }
 }
 </script>

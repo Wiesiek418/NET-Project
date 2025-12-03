@@ -1,17 +1,20 @@
 import * as signalR from '@microsoft/signalr';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+
 class WebSocket{
     constructor(){
         this.connection = null;
         this.listeners = new Map();
+        this.baseURL = API_BASE_URL
     }
 
-    async connect(url){
+    async connect(endpoint){
         if(this.connection){
             console.warn('WebSocket is already connected');
             return;
         }
-
+        const url = `${this.baseURL}${endpoint}`;
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(url) // backend hub endpoint
             .withAutomaticReconnect()
@@ -30,17 +33,14 @@ class WebSocket{
         }
     }
 
-    subscribe(channel){
+    subscribe(callback){
         const id = crypto.randomUUID();
-        this.listeners.set(id, (data) => {
-            if(data.channel === channel){
-                console.log(`Message for channel ${channel}:`, data);
-            }
-        });
+        this.listeners.set(id,(data) => callback(data));
         return () => {
             this.listeners.delete(id);
         }
     }
 }
 
-export default WebSocketService = new WebSocket();
+export const webSocket = new WebSocket();
+export default webSocket;

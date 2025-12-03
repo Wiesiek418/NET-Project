@@ -37,7 +37,7 @@ class CategoryService {
     }
 
     async getSensorAllData(category, sensorId) {
-        let url = `/${category}?`;
+        let url = `/sensors/${category}?`;
         const filter = { SensorId: `=${sensorId}` };
         const sort = { field: 'Timestamp', direction: 'desc' };
         url += `filter=${convertFilters(filter)}&`;
