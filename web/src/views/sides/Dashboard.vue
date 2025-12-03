@@ -15,13 +15,13 @@
                 <div class="dashboard-element-body">
                   <div class="dashboard-element-values">
                     <h3>Values</h3>
-                    <p>Last update: {{ parseDateTime(sensor.values[0]?.Timestamp || sensor.values[0]?.timestamp) }}</p>
+                    <p>Last update: {{ parseDateTime(sensor.values[sensor.values.length - 1]?.Timestamp || sensor.values[sensor.values.length - 1]?.timestamp) }}</p>
                     <div
                       class="dashboard-element-avg"
                       v-for="(value, key) in sensor.avg"
                       :key="key"
                     >
-                      {{ key }} {{ sensor.values[0][key] }} AVG: {{ value }}
+                      {{ key }} {{ sensor.values[sensor.values.length - 1][key] }} AVG: {{ value }}
                     </div>
                   </div>
                   <div 
