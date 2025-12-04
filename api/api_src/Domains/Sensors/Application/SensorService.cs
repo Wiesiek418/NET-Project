@@ -64,10 +64,10 @@ public class SensorService
         string? sort = null,
         CancellationToken ct = default)
     {
-        var conveyorTask = GetCollectionSummaryAsync(_context.ConveyorReadings, "Conveyor", ct);
-        var bakingTask = GetCollectionSummaryAsync(_context.BakingReadings, "Baking", ct);
-        var doughTask = GetCollectionSummaryAsync(_context.DoughReadings, "Dough", ct);
-        var packingTask = GetCollectionSummaryAsync(_context.PackingReadings, "Packing", ct);
+        var conveyorTask = GetCollectionSummaryAsync(_context.ConveyorReadings, typeof(ConveyorBeltReading).Name, ct);
+        var bakingTask = GetCollectionSummaryAsync(_context.BakingReadings, typeof(BakingFurnaceReading).Name, ct);
+        var doughTask = GetCollectionSummaryAsync(_context.DoughReadings, typeof(DoughMixerReading).Name, ct);
+        var packingTask = GetCollectionSummaryAsync(_context.PackingReadings, typeof(PackingLineReading).Name, ct);
 
         await Task.WhenAll(conveyorTask, bakingTask, doughTask, packingTask);
 
@@ -90,7 +90,7 @@ public class SensorService
             .Select(g => new SensorSummary
             {
                 SensorId = g.Key,
-                Type = typeName,
+                SensorType = typeName,
                 CreatedAt = g.Min(r => r.Timestamp)
             });
 
