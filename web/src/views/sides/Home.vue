@@ -28,18 +28,16 @@
                             :headers="headers"
                             :data="sensorsListData"
                         >
+                            <template #cell-createdAt="{row}">
+                                {{ parseDateTime(row.createdAt) }}
+                            </template>
                         </tableComponent>
                     </div>
-                    <ChartView
-                        v-if="false"
-                        type="bar"
-                        :data="chartData"
-                    /> 
                 </template>
                 <template
                     v-for="category in categories"
                     #[category]
-                >
+                >   
                     <SensorsView
                         :category="category"
                     />
@@ -57,9 +55,11 @@ import Tabs from "../../components/Tabs.vue";
 import SensorsView from "../SensorsView.vue";
 import CategoryService from '@/services/category';
 import FilterSortPanel from "@/components/FilterSortPanel.vue";
+import dateMixin from "@/mixins/dateMixin";
 
 export default {
     name: 'Home',
+    mixins: [dateMixin],
     components: {
         TheContainer,
         TableComponent,
@@ -76,9 +76,9 @@ export default {
                 datasets: []
             },
             headers: {
-                SensorId: "Sensor ID",
-                Type: "Category",
-                CreatedAt: "Created at",
+                sensorId: "Sensor ID",
+                sensorType: "Category",
+                createdAt: "Created at",
             },
             tabs:[
                 { key: 'all', label: 'All' },
@@ -94,33 +94,13 @@ export default {
                 'packing',
             ],
             activeTab: 'all',
+            filters: {},
         };
     },
     mounted(){
         this.fetchData();
     },
     methods:{
-        // async handleClick() {
-        //     const value = await ApiService.get('/weatherforecast');
-        //     this.data = value;
-        //     this.chartData = this.prepareChartData();
-        // },
-        // prepareChartData() {
-        //     if (!Array.isArray(this.data) || this.data.length === 0) {
-        //         return { labels: [], datasets: [] }; // bezpieczny fallback
-        //     }
-
-        //     return {
-        //         labels: this.data.map(item => item.date),
-        //         datasets: [
-        //             {
-        //                 label: 'Temperature (°C)',
-        //                 backgroundColor: '#f87979',
-        //                 data: this.data.map(item => item.temperatureC)
-        //             }
-        //         ],
-        //     };
-        // },
         async fetchData(filters={}) {
             this.filters = filters;
             this.sensorsListData = await CategoryService.getSensors(this.filters.filters, this.filters.sort);

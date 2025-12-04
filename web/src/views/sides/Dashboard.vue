@@ -10,11 +10,11 @@
             >
               <div v-if="sensor.values">
                 <div class="dashboard-element-header">
-                  <h2>{{ sensor.sensorType }} - {{ sensor.sensorId }}</h2>
+                  <h2>{{ sensor.sensorId }} - {{ sensor.sensorType }}</h2>
                 </div>
                 <div class="dashboard-element-body">
                   <div class="dashboard-element-values">
-                    <h3>Values</h3>
+                    <h3>Values:</h3>
                     <p>Last update: {{ parseDateTime(sensor.values[sensor.values.length - 1]?.Timestamp || sensor.values[sensor.values.length - 1]?.timestamp) }}</p>
                     <div
                       class="dashboard-element-avg"
@@ -24,19 +24,21 @@
                       {{ key }} {{ sensor.values[sensor.values.length - 1][key] }} AVG: {{ value }}
                     </div>
                   </div>
-                  <div 
-                    class="dashboard-element-charts"
-                    v-for="(value, key) in sensor.avg"
-                    :key="value"
-                  >
-                    <h3>{{ key }}</h3>
-                    <ChartView
-                      v-if="sensor.values.length>0"
-                      type="Bar"
-                      :data="setChartData(sensor, key)"
-                      :options="chartOptions"
+                  <div class="dashboard-charts">
+                    <div 
+                      class="dashboard-element-charts"
+                      v-for="(value, key) in sensor.avg"
+                      :key="value"
                     >
-                    </ChartView>
+                      <h3>{{ key }}</h3>
+                      <ChartView
+                        v-if="sensor.values.length>0"
+                        type="Bar"
+                        :data="setChartData(sensor, key)"
+                        :options="chartOptions"
+                      >
+                      </ChartView>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -53,9 +55,11 @@ import WalletService from '@/services/wallet.js';
 import CategoryService from '@/services/category.js';
 import ChartView from "../../components/ChartView.vue";
 import webSocket from "@/services/webSocket";
+import dateMixin from "@/mixins/dateMixin";
 
 export default {
   name: 'Dashboard',
+  mixins: [ dateMixin ],
   components: {
     TheContainer,
     ChartView
@@ -106,14 +110,14 @@ export default {
       const data = await WalletService.getWallets();
       this.sensors = data.filter(item =>
         !this.convertCategory.some(cat => 
-          item.SensorType?.toLowerCase() === cat.toLowerCase()
+          item.sensorType?.toLowerCase() === cat.toLowerCase()
         )
       ).map(item => {
           return {
-              sensorId: item.SensorId,
-              sensorType: this.convertCategory.find(cat => item.SensorType.toLowerCase().includes(cat)),
+              sensorId: item.sensorId,
+              sensorType: this.convertCategory.find(cat => item.sensorType.toLowerCase().includes(cat)),
           };
-      });
+      }).sort((a,b)=>a.sensorId > b.sensorId);
       for (const sensor of this.sensors) {
           const category = this.convertCategory.find(cat => sensor.sensorType.includes(cat));
           let sensorData = await CategoryService.getSensorAllData(sensor.sensorType, sensor.sensorId);
@@ -172,13 +176,7 @@ export default {
           }
           sensor.avg = this.avgList(sensor);
       }
-      console.log(sensor)
     },
-    parseDateTime(dateTime){
-      const cleaned = dateTime.replace(/\.(\d{3})\d+/, '.$1'); 
-      const date = new Date(cleaned);
-      return date.toLocaleString();
-    }
   }
 }
 </script>
@@ -190,17 +188,22 @@ export default {
   justify-content: align-start;
 }
 .dashboard-element-values{
-  width: 20%;
+  width: 300px;
+  margin-right: 3rem;
+}
+.dashboard-charts{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 .dashboard-element-charts{
-  flex: 0 0 20%;
+  flex: 1 1 auto;
+  max-width: 400px;
   min-height: 250px;
   height: auto;
   margin-right: 2rem;
 }
-.dashboard-element-body > .dashboard-element-charts:nth-child(n+4) {
-  flex: 1 1 auto;
-}
+
 .dashboard-element-body h3{
   margin-top: 0;
 }

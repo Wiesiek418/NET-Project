@@ -22,7 +22,7 @@ class WebSocket{
             .build();
 
         this.connection.on('NewReading', (message) => {
-            console.log('SignalR msg:', message);
+            // console.log('SignalR msg:', message);
             this.listeners.forEach((callback) => callback(message));
         });
 

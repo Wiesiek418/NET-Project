@@ -44,6 +44,7 @@ export default {
 <style scoped>
 .sidebar {
   width: 220px;
+  min-width: 100px;
   transition: width 0.3s ease;
   background: var(--theme-color-secondary);
   color: var(--theme-color-primary);
