@@ -51,7 +51,6 @@
 import TheContainer from "../containers/TheContainer.vue";
 import WalletService from '@/services/wallet.js';
 import CategoryService from '@/services/category.js';
-import { useSensorsStore } from '@/stores/sensors.js';
 import ChartView from "../../components/ChartView.vue";
 import webSocket from "@/services/webSocket";
 
@@ -67,20 +66,20 @@ export default {
         numberOfElementsOnChart: 10,
         sensors: {},
         dashboardValuesNames: {
-            Baking: [
-                "GasFlow", "Humidity", "Temperature"
+            baking: [
+                "gasFlow", "humidity", "temperature"
             ],
-            Packing: [
-                "ConveyorSpeed", "PackageCount", "SealTemperature"
+            packing: [
+                "conveyorSpeed", "packageCount", "sealTemperature"
             ],
-            Dough: [
-                "RotationSpeed", "MotorTemperature", "VibrationLevel", "LoadWeight"
+            dough: [
+                "rotationSpeed", "motorTemperature", "vibrationLevel", "loadWeight"
             ],
-            Conveyor: [
-                "BearingTemp", "Speed"
+            conveyor: [
+                "bearingTemp", "speed"
             ],
         },
-        convertCategory: ["Baking", "Packing", "Dough", "Conveyor"],
+        convertCategory: ["baking", "packing", "dough", "conveyor"],
         sensorsValues: {},
         chartOptions: {
             responsive: true,
@@ -88,9 +87,6 @@ export default {
         },
         unsubscribeSocket: null
     };
-  },
-  created(){
-    this.sensorsStore = useSensorsStore();
   },
   async mounted(){
     this.fetchData();
@@ -108,17 +104,19 @@ export default {
     },
     async fetchData(){
       const data = await WalletService.getWallets();
-
-      this.sensors = data.map(item => {
+      this.sensors = data.filter(item =>
+        !this.convertCategory.some(cat => 
+          item.SensorType?.toLowerCase() === cat.toLowerCase()
+        )
+      ).map(item => {
           return {
               sensorId: item.SensorId,
-              sensorType: item.SensorType,
+              sensorType: this.convertCategory.find(cat => item.SensorType.toLowerCase().includes(cat)),
           };
       });
-      
       for (const sensor of this.sensors) {
           const category = this.convertCategory.find(cat => sensor.sensorType.includes(cat));
-          let sensorData = await CategoryService.getSensorAllData(category, sensor.sensorId);
+          let sensorData = await CategoryService.getSensorAllData(sensor.sensorType, sensor.sensorId);
           if(!Array.isArray(sensorData)){
               sensorData = Object.values(sensorData);
           }
@@ -165,6 +163,7 @@ export default {
       return chunks;
     },
     pushNewValue(newValue){
+      
       const sensor = this.sensors.find(s => s.sensorId === newValue.sensorId);
       if(sensor){
           sensor.values.push(newValue);
@@ -173,6 +172,7 @@ export default {
           }
           sensor.avg = this.avgList(sensor);
       }
+      console.log(sensor)
     },
     parseDateTime(dateTime){
       const cleaned = dateTime.replace(/\.(\d{3})\d+/, '.$1'); 
