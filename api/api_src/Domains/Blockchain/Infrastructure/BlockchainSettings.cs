@@ -11,7 +11,7 @@ public class BlockchainSettings
     public string TokenAddress { get; set; } = "0x76a7854fB1f3bAd944F7aD88D5b9f749430f5613";
     public int TokenDecimals { get; set; } = 18;
     public string AppWalletPrivateKey { get; set; } = string.Empty;
-    public decimal PaymentAmount { get; set; } = 0.001m;
+    public decimal PaymentAmount { get; set; } = 0.1m;
     public BlockchainCollectionsSettings Wallets { get; set; } = new();
 }
 

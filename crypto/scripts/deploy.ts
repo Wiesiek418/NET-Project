@@ -1,4 +1,5 @@
 import hre from "hardhat";
+import fs from "fs";
 
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
@@ -13,7 +14,12 @@ async function main() {
   // W ethers v6 czekamy na deploy tak:
   await token.waitForDeployment();
 
-  console.log("SensorToken deployed to:", await token.getAddress());
+  const address = await token.getAddress();
+  console.log("SensorToken deployed to:", address);
+
+  fs.writeFileSync("/deploy/token.json", JSON.stringify({
+    tokenAddress: address
+  }, null, 2));
 }
 
 main().catch((error) => {

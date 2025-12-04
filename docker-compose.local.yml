@@ -1,0 +1,118 @@
+services:
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./api:/api
+      - /api/bin
+      - /api/obj
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Shared Database Configuration
+      - Database__ConnectionString=mongodb://root:example@mongodb:27017
+      - Database__DatabaseName=sensordb
+      # Sensors Domain Configuration
+      - Sensors__Collections__Conveyor=conveyor_readings
+      - Sensors__Collections__Baking=baking_readings
+      - Sensors__Collections__Dough=dough_readings
+      - Sensors__Collections__Packing=packing_readings
+      - Sensors__Mqtt__BrokerHost=mqtt
+      - Sensors__Mqtt__BrokerPort=1883
+      - Sensors__Mqtt__ClientId=mqtt-listener
+      - Sensors__Mqtt__Username=
+      - Sensors__Mqtt__Password=
+      - Sensors__Mqtt__Topics__Conveyor=sensors/conveyor
+      - Sensors__Mqtt__Topics__Baking=sensors/baking
+      - Sensors__Mqtt__Topics__Dough=sensors/dough
+      - Sensors__Mqtt__Topics__Packing=sensors/packing
+      # Blockchain Domain Configuration
+      - Blockchain__Collections__Wallets=sensor_wallets
+      - Blockchain__RpcUrl=http://anvil:8545
+      - Blockchain__TokenAddress=0x5FbDB2315678afecb367f032d93F642f64180aa3
+      - Blockchain__TokenDecimals=18
+      - Blockchain__AppWalletPrivateKey=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+    depends_on:
+      mongo:
+        condition: service_started
+      mqtt:
+        condition: service_started
+      deployer:
+        condition: service_completed_successfully
+      anvil:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: dotnet run --urls=http://+:5000 --no-launch-profile
+    
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./web:/web
+      - /web/node_modules
+    environment:
+      - NODE_ENV=dev
+    command: npm run dev -- --host
+
+  mqtt:
+    image: eclipse-mosquitto
+    container_name: mqtt
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mqtt/config:/mosquitto/config:rw
+      - ./mqtt/data:/mosquitto/data:rw
+      - ./mqtt/log:/mosquitto/log:rw
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:8.0-noble
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: sensordb
+    # volumes:
+    #   - ./mongo/data:/data/db
+
+  sensors:
+    build:
+      context: ./sensor
+      dockerfile: Dockerfile
+    depends_on:
+      mqtt:
+        condition: service_started
+      api:
+        condition: service_healthy
+    command: python run_all.py --interval 30 --randomness 10 --broker mqtt --baking-furnaces 4 --conveyor-belts 4 --dough-mixers 4 --packing-lines 4
+
+  anvil:
+      build:
+        context: ./anvil
+        dockerfile: Dockerfile
+      ports:
+        - "8545:8545"
+
+  deployer:
+    build: ./crypto
+    depends_on:
+      - anvil
+    volumes:
+      - ./crypto/deploy:/deploy
+    environment:
+      - RPC_URL=http://anvil:8545
+    restart: "no"

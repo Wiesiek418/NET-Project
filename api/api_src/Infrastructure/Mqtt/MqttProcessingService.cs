@@ -25,19 +25,23 @@ public class MqttProcessingService : BackgroundService
         {
             var batch = await _queue.DequeueBatchAsync(_batchSize, stoppingToken);
 
-            using var scope = _sp.CreateScope(); // <-- create a scope per message
-            var dispatcher = scope.ServiceProvider.GetRequiredService<MqttDispatcher>();
-
-            foreach (var message in batch)
+            // Process messages in parallel, each with its own scope
+            var tasks = batch.Select(async message =>
             {
-                try {
+                using var scope = _sp.CreateScope();
+                var dispatcher = scope.ServiceProvider.GetRequiredService<MqttDispatcher>();
+
+                try
+                {
                     await dispatcher.DispatchAsync(message.Topic, message.Payload, stoppingToken);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error processing MQTT message on topic {Topic}", message.Topic);
                 }
-            }
+            });
+
+            await Task.WhenAll(tasks);
         }
     }
 }

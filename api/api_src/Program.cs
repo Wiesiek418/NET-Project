@@ -1,4 +1,5 @@
-using Extensions;
+using System.Text.Json;
+
 using Infrastructure.SignalR;
 using Infrastructure.Data.MongoDB;
 using Infrastructure.Mqtt;
@@ -14,7 +15,7 @@ builder.AddBlockchainInfrastructure();
 builder.AddSensorsInfrastructure();
 
 builder.Services.AddControllers()
-    .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
+    .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 
 builder.Services.AddControllers(options => { options.OutputFormatters.Add(new CsvHelperOutputFormatter()); });
 
@@ -30,7 +31,8 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddOpenApi();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR()
+    .AddJsonProtocol(options => { options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase; });
 
 // Build app
 
@@ -40,6 +42,7 @@ app.UseCors("VueApp");
 
 app.MapControllers();
 app.MapHub<NotificationHub>("/api/notifications");
+app.MapHealthChecks("/healthy");
 
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
