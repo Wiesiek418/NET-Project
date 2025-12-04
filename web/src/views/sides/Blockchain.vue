@@ -31,9 +31,9 @@ export default {
     return {
         data: null,
         headers: {
-            SensorId: "Sensor ID",
-            SensorType: "Category",
-            Balance: "Balance (ETH)",
+            sensorId: "Sensor ID",
+            sensorType: "Category",
+            balance: "Balance (ETH)",
         },
         refreshTable: false,
     };
@@ -44,6 +44,7 @@ export default {
   methods:{
     async fetchData(){
         this.data = await WalletService.getBalances();
+        this.data.sort((a,b) => a.sensorId > b.sensorId)
     },
     handleButton(){
         this.fetchData();
