@@ -8,7 +8,7 @@ from dough import DoughMixerSensor
 from packing import PackingLineSensor
 
 def run_sensor(sensor_class, sensor_id, broker, port, topic, interval, randomness, wallet_address):
-    sensor = sensor_class(sensor_id, broker, port, topic, wallet_address)
+    sensor = sensor_class(sensor_id, broker, port, topic, wallet_address, auto_run=True)
     try:
         sensor.run(interval, randomness)
     except KeyboardInterrupt:

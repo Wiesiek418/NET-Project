@@ -91,4 +91,6 @@ services:
         condition: service_started
       api:
         condition: service_healthy
+    volumes:
+      - ./sensor:/usr/src/app:rw
     command: python run_all.py --interval 30 --randomness 10 --broker mqtt --baking-furnaces 4 --conveyor-belts 4 --dough-mixers 4 --packing-lines 4

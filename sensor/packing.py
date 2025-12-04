@@ -4,8 +4,8 @@ from base.sensor import BaseSensor, main
 class PackingLineSensor(BaseSensor):
     _STATUSES = ["running", "stopped", "maintenance", "error"]
 
-    def __init__(self, sensor_id, broker_address, port, topic, wallet):
-        super().__init__(sensor_id, broker_address, port, topic, wallet)
+    def __init__(self, sensor_id, broker_address, port, topic, wallet, auto_run):
+        super().__init__(sensor_id, broker_address, port, topic, wallet, auto_run)
         self._package_count = 0
         self._error_count = 0
 
