@@ -27,6 +27,7 @@ public class SensorsController : ControllerBase
 
     // GET /api/sensors/conveyor - All conveyor readings
     [HttpGet("conveyor")]
+    [HttpGet("ConveyorBeltReading")]
     public async Task<IEnumerable<ConveyorBeltReading>> GetConveyor(
         [FromQuery] string? filter,
         [FromQuery] string? sort,
@@ -37,6 +38,7 @@ public class SensorsController : ControllerBase
 
     // GET /api/sensors/baking - All baking readings
     [HttpGet("baking")]
+    [HttpGet("BakingFurnaceReading")]
     public async Task<IEnumerable<BakingFurnaceReading>> GetBaking(
         [FromQuery] string? filter,
         [FromQuery] string? sort,
@@ -47,6 +49,7 @@ public class SensorsController : ControllerBase
 
     // GET /api/sensors/dough - All dough readings
     [HttpGet("dough")]
+    [HttpGet("DoughMixerReading")]
     public async Task<IEnumerable<DoughMixerReading>> GetDough(
         [FromQuery] string? filter,
         [FromQuery] string? sort,
@@ -57,6 +60,7 @@ public class SensorsController : ControllerBase
 
     // GET /api/sensors/packing - All packing readings
     [HttpGet("packing")]
+    [HttpGet("PackingLineReading")]
     public async Task<IEnumerable<PackingLineReading>> GetPacking(
         [FromQuery] string? filter,
         [FromQuery] string? sort,

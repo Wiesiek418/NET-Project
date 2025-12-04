@@ -23,8 +23,14 @@ public static class MongoInfrastructureSetup
         var mongoClient = new MongoClient(databaseSettings.ConnectionString);
         var mongoDatabase = mongoClient.GetDatabase(databaseSettings.DatabaseName);
 
-        // Register shared MongoDB database as singleton
+        // Register the MongoDB database instance for dependency injection
         builder.Services.AddSingleton(mongoDatabase);
+
+        // Register health check
+        builder.Services
+            .AddSingleton(mongoClient)
+            .AddHealthChecks()
+            .AddMongoDb();
 
         return builder;
     }

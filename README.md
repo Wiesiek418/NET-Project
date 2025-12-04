@@ -52,3 +52,18 @@ You already have Docker, right ?
 
 ## Testing
 For MQTT sensor simulations, see the `sensor` directory.
+
+
+## Deployment
+
+### Locally
+Local Ethereum node
+```bash
+docker compose -f docker-compose.local.yml up -d
+```
+
+### Server
+Sepolia testnet through Infura
+```bash
+docker compose -f docker-compose.sepolia.yml up -d
+```

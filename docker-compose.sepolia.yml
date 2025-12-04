@@ -36,6 +36,12 @@ services:
     depends_on:
       - mongo
       - mqtt
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     command: dotnet run --urls=http://+:5000 --no-launch-profile
     
   web:
@@ -55,8 +61,8 @@ services:
     image: eclipse-mosquitto
     container_name: mqtt
     ports:
-      - "1883:1883" #default mqtt port
-      - "9001:9001" #default mqtt port for websockets
+      - "1883:1883"
+      - "9001:9001"
     volumes:
       - ./mqtt/config:/mosquitto/config:rw
       - ./mqtt/data:/mosquitto/data:rw
@@ -73,14 +79,16 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
       MONGO_INITDB_DATABASE: sensordb
-    volumes:
-      - ./mongo/data:/data/db
+    # volumes:
+    #   - ./mongo/data:/data/db
 
   sensors:
     build:
       context: ./sensor
       dockerfile: Dockerfile
     depends_on:
-      - mqtt
-      - api
-    command: python run_all.py --broker mqtt --baking-furnaces 2 --conveyor-belts 1 --dough-mixers 1 --packing-lines 1
+      mqtt:
+        condition: service_started
+      api:
+        condition: service_healthy
+    command: python run_all.py --interval 30 --randomness 10 --broker mqtt --baking-furnaces 4 --conveyor-belts 4 --dough-mixers 4 --packing-lines 4

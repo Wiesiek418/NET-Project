@@ -51,8 +51,9 @@ public class WalletService
         this._settings = _settings.Value;
         _nonceService = nonceService;
 
-        _appAccount = new Account(this._settings.AppWalletPrivateKey);
+        _appAccount = new Account(this._settings.AppWalletPrivateKey, chainId: 31337);
         _web3 = new Web3(_appAccount, this._settings.RpcUrl);
+        _web3.TransactionManager.UseLegacyAsDefault = false;
     }
 
     public async Task<IEnumerable<WalletInfo>> GetAllWalletsAsync(CancellationToken ct = default)
@@ -155,7 +156,8 @@ public class WalletService
 
     public async Task<string> SendTokenAsync(string receiverAddress, CancellationToken ct = default)
     {
-        while (true)
+        int retries = 0;
+        while (retries < 5)
             try
             {
                 return await SendTokenInternalAsync(receiverAddress, ct);
@@ -164,8 +166,10 @@ public class WalletService
             {
                 await _nonceService.ResetAsync();
                 Console.WriteLine("Blockchain provider error - trying again in two seconds \n\n");
-                await Task.Delay(2000, ct);
+                await Task.Delay(retries * 2000, ct);
+                retries++;
             }
+        return string.Empty;
     }
 
     private async Task<string> SendTokenInternalAsync(string receiverAddress, CancellationToken ct)

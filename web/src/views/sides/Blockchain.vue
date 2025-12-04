@@ -3,10 +3,12 @@
     <template #main_content>
       <div class="wallet-container">
           <h1>Blockchain wallets</h1>
+          <button @click="fetchData()">Refresh</button>
           <tableComponent
               v-if="data"
               :headers="headers"
               :data="data"
+              :key="`wallet_table_${refreshTable}`"
           >
           </tableComponent>
       </div>
@@ -33,6 +35,7 @@ export default {
             SensorType: "Category",
             Balance: "Balance (ETH)",
         },
+        refreshTable: false,
     };
   },
   mounted(){
@@ -40,8 +43,12 @@ export default {
   },
   methods:{
     async fetchData(){
-        this.data = await WalletService.getWallets();
+        this.data = await WalletService.getBalances();
     },
+    handleButton(){
+        this.fetchData();
+        this.refreshTable != this.refreshTable;
+    }
   }
 };
 </script>

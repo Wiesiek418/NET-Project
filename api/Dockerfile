@@ -11,6 +11,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 COPY --from=build /app .
 
+RUN apt-get update 
+RUN apt-get --yes install curl
+
 EXPOSE 5000
 
 # Set default environment variables that can be overridden by docker-compose or runtime
