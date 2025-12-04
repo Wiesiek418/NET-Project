@@ -47,7 +47,7 @@ export default {
   min-width: 100px;
   transition: width 0.3s ease;
   background: var(--theme-color-secondary);
-  color: var(--theme-color-primary);
+  color: var(--theme-color-font-secondary);
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   display: flex;
@@ -101,18 +101,23 @@ export default {
   transition: transform 0.3s ease, margin 0.3s ease;
 }
 
+.label{
+  margin-left: 1.5rem;
+  font-weight: bold;
+}
+
 .sidebar.collapsed .menu-item {
   justify-content: center;
 }
 
 .menu-item.active {
-  background-color: #1976d2;
+  background-color: var(--theme-color-thirdly);
   color: white;
-  box-shadow: inset 3px 0 0 #0d47a1;
+  box-shadow: inset 3px 0 0 var(--theme-color-thirdly-shadow);
 }
 
 .menu-item.active:hover {
-  background-color: #1565c0;
+  background-color: var(--theme-color-thirdly-hover);
 }
 
 </style>

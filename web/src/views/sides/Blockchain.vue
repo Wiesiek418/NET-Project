@@ -3,7 +3,7 @@
     <template #main_content>
       <div class="wallet-container">
           <h1>Blockchain wallets</h1>
-          <button @click="fetchData()">Refresh</button>
+          <button class="refresh-btn" @click="fetchData()">Refresh</button>
           <tableComponent
               v-if="data"
               :headers="headers"
@@ -53,3 +53,9 @@ export default {
   }
 };
 </script>
+<style>
+.refresh-btn{
+    background-color: var(--theme-color-thirdly);
+    font-weight: bold;
+}
+</style>

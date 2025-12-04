@@ -1,6 +1,6 @@
 :root{
     /* --color-bg: #ecebe8; */
-    --color-bg: #f3f1e4;
+    --color-bg: #fdfdfd;
     --color-text: rgba(10, 10, 10, 1);
 
     --font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -13,7 +13,12 @@
     --spacing-medium: 1em;
     --spacing-large: 2em;
 
-    --theme-color-main: #F9E795;
-    --theme-color-primary: #F96167;
-    --theme-color-secondary: #f0e7c0;
+    --theme-color-main: #F96167;
+    --theme-color-secondary: #f0cbcc;
+    --theme-color-thirdly: #a51c20;
+    --theme-color-thirdly-shadow: #571212;
+    --theme-color-thirdly-hover: #570303;
+    
+    --theme-color-font-primary: #ffffff;
+    --theme-color-font-secondary: #3b3232;
 }
