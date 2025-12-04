@@ -14,7 +14,7 @@ export default {
 .header-container {
     background-color: var(--theme-color-main);
     padding: 20px;
-    color: var(--theme-color-primary);
+    color: var(--theme-color-font-primary);
     display: flex;
     align-items: start;
     justify-self: center;

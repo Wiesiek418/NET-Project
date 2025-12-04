@@ -61,8 +61,13 @@ export default {
 }
 
 .tab-btn.active {
-    border-bottom: 2px solid #0385db;
+    border-bottom: 2px solid var(--theme-color-thirdly);
     font-weight: bold;
+}
+
+.tab-btn:hover {
+    font-weight: bold;
+    background-color: var(--theme-color-main);
 }
 
 .tab-content {

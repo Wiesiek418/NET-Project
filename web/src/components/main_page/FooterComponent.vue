@@ -17,7 +17,7 @@ export default {
     background-color: var(--theme-color-main);
     padding: 10px;
     text-align: center;
-    color: var(--theme-color-primary);
+    color: var(--theme-color-font-primary);
     display: flex;
     align-items: center;
     justify-content: center;

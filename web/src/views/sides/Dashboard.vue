@@ -15,14 +15,15 @@
                 <div class="dashboard-element-body">
                   <div class="dashboard-element-values">
                     <h3>Values:</h3>
-                    <p>Last update: {{ parseDateTime(sensor.values[sensor.values.length - 1]?.Timestamp || sensor.values[sensor.values.length - 1]?.timestamp) }}</p>
+                    <p>Last update: <strong>{{ parseDateTime(sensor.values[sensor.values.length - 1]?.Timestamp || sensor.values[sensor.values.length - 1]?.timestamp) }}</strong></p>
                     <div
                       class="dashboard-element-avg"
                       v-for="(value, key) in sensor.avg"
                       :key="key"
                     >
-                      {{ key }} {{ sensor.values[sensor.values.length - 1][key] }} AVG: {{ value }}
+                      {{ key }}: <strong>{{ sensor.values[sensor.values.length - 1][key] }}</strong> AVG: <strong>{{ value }}</strong>
                     </div>
+                    <p>Array size: <strong>{{sensor.values.length }}</strong></p>
                   </div>
                   <div class="dashboard-charts">
                     <div 
@@ -144,7 +145,7 @@ export default {
       return avgValues;
     },
     setChartData(sensor, key){
-      const chunkSize = Math.ceil(sensor.values.length / this.numberOfElementsOnChart);
+      const chunkSize = this.numberOfElementsOnChart
       const chunkData = this.getChunkData(sensor.values, key, chunkSize);
       return {
           labels: chunkData.map((_, index) => `#${index + 1}`),

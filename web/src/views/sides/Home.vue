@@ -7,16 +7,20 @@
             >
                 <template #all>
                     <div class="home-sensors-container">
-                        <button
-                            @click="downloadData('json')"
-                        >
-                            Download Data JSON
-                        </button>
-                        <button
-                            @click="downloadData('csv')"
-                        >
-                            Download Data CSV
-                        </button>
+                        <div class="download-btn-container">
+                            <button
+                                @click="downloadData('json')"
+                                class="download-btn"
+                            >
+                                Download Data JSON
+                            </button>
+                            <button
+                                @click="downloadData('csv')"
+                                class="download-btn"
+                            >
+                                Download Data CSV
+                            </button>
+                        </div>
 
                         <FilterSortPanel
                             :headers="headers"
@@ -28,9 +32,6 @@
                             :headers="headers"
                             :data="sensorsListData"
                         >
-                            <template #cell-createdAt="{row}">
-                                {{ parseDateTime(row.createdAt) }}
-                            </template>
                         </tableComponent>
                     </div>
                 </template>
@@ -111,3 +112,13 @@ export default {
     }
 };
 </script>
+<style>
+.download-btn-container{
+    margin: 5px 0;
+}
+.download-btn{
+    margin-right: 4px;
+    background-color: var(--theme-color-thirdly);
+    font-weight: bold;
+}
+</style>

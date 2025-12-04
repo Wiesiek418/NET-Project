@@ -1,43 +1,50 @@
 <template>
     <div class="filter-sort-panel">
-        <div
-            v-if="!disabledFilters"
-        >
+        <div class="filter-select-panel">
             <div
-                v-for="(text, key) in headers"
-                :key="value"
-                v-if="!excludedFilters.includes(key)"
+                v-if="!disabledFilters"
             >
-                <label :for="key">{{ text }}</label>
-                <input
-                    :id="key"
-                    type="text"
-                    :disabled="disabled"
-                    v-model="filterValues[key]"
-                />
-            </div>
-        </div>
-        <div
-            v-if="!disabledSorts"
-        >
-            <label>Sort</label>
-            <select
-                :disabled="disabled"
-                v-model="selectedSort"
-            >
-                <option 
-                    v-for="option in sortOptions"
-                    :value="option"
-                    :key="option.direction + option.field"
+                <div
+                    v-for="(text, key) in headers"
+                    :key="value"
+                    v-if="!excludedFilters.includes(key)"
+                    class="filter-container"
                 >
-                    {{ option.text }}
-                </option>
-            </select>
+                    <label class="label" :for="key">{{ text }}:</label>
+                    <input
+                        :id="key"
+                        type="text"
+                        :disabled="disabled"
+                        v-model="filterValues[key]"
+                        class="filter-select"
+                    />
+                </div>
+            </div>
+            <div
+                v-if="!disabledSorts"
+                class="filter-container"
+            >
+                <label class="label">Sort:</label>
+                <select
+                    :disabled="disabled"
+                    v-model="selectedSort"
+                    class="filter-select"
+                >
+                    <option 
+                        v-for="option in sortOptions"
+                        :value="option"
+                        :key="option.direction + option.field"
+                    >
+                        {{ option.text }}
+                    </option>
+                </select>
+            </div>
         </div>
         <div>
             <button 
                 :disabled="disabled"
                 @click="applyFiltersAndSorts()"
+                class="filter-apply-btn"
             >
                 Apply
             </button>
@@ -113,5 +120,24 @@ export default {
 </script>
 
 <style>
-
+.label{
+    margin-right: 1.5rem;
+    font-weight: bold;
+    width: 150px;
+}
+.filter-container{
+    display: flex;
+    padding: 3px;
+}
+.filter-select{
+    width: 150px;
+    padding: 2px;
+}
+.filter-select-panel{
+    margin: 10px 0;
+}
+.filter-apply-btn{
+    background-color: var(--theme-color-thirdly);
+    font-weight: bold;
+}
 </style>
