@@ -1,14 +1,16 @@
 
 import argparse
 import json
+import os
 import random
 import time
 import paho.mqtt.client as mqtt
 from datetime import datetime
 
 class BaseSensor:
-    def __init__(self, sensor_id, broker_address, port, topic, wallet_address):
+    def __init__(self, sensor_id, broker_address, port, topic, wallet_address, auto_run = False):
         self.sensor_id = sensor_id
+        self.auto_run = auto_run
         self.broker_address = broker_address
         self.port = port
         self.topic = topic
@@ -17,6 +19,7 @@ class BaseSensor:
         self.client = mqtt.Client(client_id = self.name)
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
+        self.stop = False
 
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
@@ -38,6 +41,30 @@ class BaseSensor:
     def _generate_data(self):
         raise NotImplementedError("This is base sensor!")
 
+    def _load_overrides(self):
+        overrides_path = "overrides.json"
+        try:
+            overrides_path = os.path.abspath(overrides_path)
+            if not os.path.exists(overrides_path):
+                return {}
+            with open(overrides_path, "r") as f:
+                data = json.load(f)
+
+            if isinstance(data, list):
+                for item in data:
+                    try:
+                        if isinstance(item, dict) and int(item.get("id")) == int(self.sensor_id):
+                            if item.get("ManualOnly", False) and self.auto_run:
+                                self.stop = True
+                                continue
+                            return {k: v for k, v in item.items() if k != "id" and k != "ManualOnly"}
+                    except Exception:
+                        continue
+            return {}
+        except Exception as e:
+            print(f"{self.name}: Failed to load overrides.json: {e}")
+            return {}
+
     def run(self, interval, randomness=0):
         self.connect()
         while True:
@@ -48,6 +75,14 @@ class BaseSensor:
                 "WalletAddress": self.wallet_address,
                 **data
             }
+
+            overrides = self._load_overrides()
+            if self.stop:
+                print(f"Sensor {self.name} is set to manual only")
+                break
+            if overrides:
+                payload.update(overrides)
+
             payload_json = json.dumps(payload)
             self.client.publish(self.topic, payload_json)
             print(f"Published from {self.name}: {payload_json}")

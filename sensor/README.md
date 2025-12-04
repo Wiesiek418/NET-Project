@@ -1,3 +1,29 @@
+## Sensor data overrides
+
+You can force specific fields for any sensor to constant values (or any fixed value) using a common JSON file `sensor/overrides.json`.
+
+Format: a list of objects, each with:
+- `id`: the sensor id (integer)
+- Any other keys to override in the generated payload
+
+Example forcing Dough mixer to constant `RotationSpeed`:
+
+```json
+[
+	{ "id": 2, "RotationSpeed": 10 }
+]
+```
+
+Setting `ManualOnly` to true will prevent the sensor from auto-running:
+
+```json
+[
+    { "id": 2, "RotationSpeed": 10, "ManualOnly": true }
+]
+```
+
+The sensor can then be run manually to publish data with the overridden values.
+
 # MQTT Sensors
 
 ## Prerequisites
